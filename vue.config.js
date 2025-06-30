@@ -1,18 +1,22 @@
-const { defineConfig } = require("@vue/cli-service");
-const webpack = require("webpack");
-const path = require('path');
-const fs = require('fs');
+// const { defineConfig } = require("@vue/cli-service");
+// const webpack = require("webpack");
+// const path = require('path');
+// const fs = require('fs');
 
 // Read and process manifest.json
-const manifestPath = path.resolve(__dirname, 'public/manifest.json');
-const manifestContent = fs.readFileSync(manifestPath, 'utf8');
-const processedManifest = manifestContent
-  .replace(/<%= VUE_APP_TITLE %>/g, process.env.VUE_APP_TITLE || 'Vue Template')
-  .replace(/<%= VUE_APP_DESCRIPTION %>/g, process.env.VUE_APP_DESCRIPTION || 'A Vue.js template with modern features')
-  .replace(/<%= VUE_APP_THEME_COLOR %>/g, process.env.VUE_APP_THEME_COLOR || '#4338CA');
+// const manifestPath = path.resolve(__dirname, 'public/manifest.json');
+// const manifestContent = fs.readFileSync(manifestPath, 'utf8');
+// const processedManifest = manifestContent
+//   .replace(/<%= VUE_APP_TITLE %>/g, process.env.VUE_APP_TITLE || 'Vue Template')
+//   .replace(/<%= VUE_APP_DESCRIPTION %>/g, process.env.VUE_APP_DESCRIPTION || 'A Vue.js template with modern features')
+//   .replace(/<%= VUE_APP_THEME_COLOR %>/g, process.env.VUE_APP_THEME_COLOR || '#4338CA');
 
 // Write processed manifest
-fs.writeFileSync(manifestPath, processedManifest);
+// fs.writeFileSync(manifestPath, processedManifest);
+
+const { defineConfig } = require("@vue/cli-service");
+const webpack = require("webpack");
+const path = require("path");
 
 module.exports = defineConfig({
   transpileDependencies: [],
@@ -42,7 +46,7 @@ module.exports = defineConfig({
     },
   },
   pwa: {
-    name: process.env.VUE_APP_TITLE || 'SP Team Template',
+    name: process.env.VUE_APP_TITLE || 'Superpost',
     themeColor: '#ffffff',
     background_color: '#ffffff',
     display: 'standalone',
@@ -50,8 +54,10 @@ module.exports = defineConfig({
     start_url: '.',
     scope: '/',
     manifestOptions: {
-      short_name: 'SPV',
+      short_name: process.env.VUE_APP_TITLE || 'SPV',
+      name: process.env.VUE_APP_TITLE || 'Superpost',
       description: process.env.VUE_APP_DESCRIPTION || 'A modern template',
+      theme_color: process.env.VUE_APP_THEME_COLOR || '#4338CA',
       icons: [
         {
           src: './icons/favicon.ico',
