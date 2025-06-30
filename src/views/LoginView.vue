@@ -111,7 +111,7 @@ import { ref, computed } from 'vue'
 import { useTitle } from '@/composables/ui/useTitle'
 import { useLogin } from '@/composables/auth/useLogin'
 
-const appTitle = computed(() => process.env.VUE_APP_TITLE || 'SP Team Template')
+const appTitle = computed(() => process.env.VUE_APP_TITLE || 'Superpost Login')
 
 useTitle(`${appTitle.value} - Login`)
 
