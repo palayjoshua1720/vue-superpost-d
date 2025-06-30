@@ -109,7 +109,7 @@ export default {
           {
             headers: {
               Authorization: `Bearer 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`,
-              'HTTP-Referer': 'http://localhost:5173',
+              // 'HTTP-Referer': 'http://localhost:5173',
             },
           }
         );
