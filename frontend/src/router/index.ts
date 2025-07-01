@@ -48,16 +48,16 @@ const routes: RouteRecordRaw[] = [
 					icon: HomeIcon
 				}
 			},
-			{
-				path: 'about',
-				name: 'about',
-				component: AboutView,
-				meta: {
-					requiresAuth: true,
-					title: 'About',
-					icon: AboutIcon
-				}
-			},
+			// {
+			// 	path: 'about',
+			// 	name: 'about',
+			// 	component: AboutView,
+			// 	meta: {
+			// 		requiresAuth: true,
+			// 		title: 'About',
+			// 		icon: AboutIcon
+			// 	}
+			// },
 			{
 				path: 'profile',
 				name: 'profile',

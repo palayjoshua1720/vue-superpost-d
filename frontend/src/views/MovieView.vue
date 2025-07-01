@@ -16,7 +16,24 @@
                 Search
                 </button>
             </div>
-            <span v-if="searchLoading" class="text-blue-600 animate-pulse">Searching...</span>
+            <div v-if="searchLoading" class="flex items-center justify-center py-4">
+                <!-- <div class="animate-spin rounded-full h-24 w-24 border-b-2 border-primary dark:border-primary-dark"></div> -->
+                <div class="flex justify-center min-h-screen bg-gray-900">
+                    <svg
+                        class="h-24 w-24 stroke-white animate-bolt-trail"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke-width="1"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                        d="M13 2L3 14h7v8l10-12h-7z"
+                        class="bolt-path"
+                        />
+                    </svg>
+                </div>
+            </div>
             <div v-if="searchError" class="mt-2 text-red-600">{{ searchError }}</div>
         </div>
 
@@ -52,7 +69,24 @@
         <!-- Movies by Genre Section -->
         <div v-if="selectedGenre">
             <h2 class="text-2xl font-bold mb-4">{{ selectedGenre.name }} Movies</h2>
-            <div v-if="genreMoviesLoading" class="text-blue-600 mb-4">Loading movies...</div>
+            <div v-if="genreMoviesLoading" class="flex items-center justify-center py-4">
+                <!-- <div class="animate-spin rounded-full h-24 w-24 border-b-2 border-primary dark:border-primary-dark"></div> -->
+                <div class="flex justify-center min-h-screen bg-gray-900">
+                    <svg
+                        class="h-24 w-24 stroke-white animate-bolt-trail"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke-width="1"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                        d="M13 2L3 14h7v8l10-12h-7z"
+                        class="bolt-path"
+                        />
+                    </svg>
+                </div>
+            </div>
             <div v-else>
                 <div v-if="genreMovies.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     <MovieCard
@@ -90,15 +124,35 @@
         </div>
 
         <!-- Popular Movies Section -->
-        <div v-if="popularMovies.length && !selectedGenre && !searchResults.length" class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Popular Movies</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                <MovieCard
-                v-for="movie in popularMovies.slice(0, 50)"
-                :key="movie.id"
-                :movie="movie"
-                @click="showMovieDetails(movie)"
-                />
+        <div v-if="popularMovies">
+            <div v-if="getLoading" class="flex items-center justify-center py-4">
+                <!-- <div class="animate-spin rounded-full h-24 w-24 border-b-2 border-primary dark:border-primary-dark"></div> -->
+                <div class="flex justify-center min-h-screen bg-gray-900">
+                    <svg
+                        class="h-24 w-24 stroke-white animate-bolt-trail"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke-width="1"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                        d="M13 2L3 14h7v8l10-12h-7z"
+                        class="bolt-path"
+                        />
+                    </svg>
+                </div>
+            </div>
+            <div v-if="popularMovies.length && !selectedGenre && !searchResults.length" class="mb-8">
+                <h2 class="text-2xl font-bold mb-4">Popular Movies</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <MovieCard
+                    v-for="movie in popularMovies.slice(0, 50)"
+                    :key="movie.id"
+                    :movie="movie"
+                    @click="showMovieDetails(movie)"
+                    />
+                </div>
             </div>
         </div>
 
@@ -121,6 +175,7 @@ import MovieCard from '../components/layout/movie/MovieCard.vue'
 
 const search = ref('')
 const searchLoading = ref(false)
+const getLoading = ref(false)
 const searchError = ref('')
 const searchResults = ref<TMDBMovie[]>([])
 const popularMovies = ref<TMDBMovie[]>([])
@@ -199,13 +254,33 @@ onMounted(async () => {
         genres.value = []
     }
     try {
+        getLoading.value = true
         const res1 = await getPopularMovies(1)
         const res2 = await getPopularMovies(2)
         const res3 = await getPopularMovies(3)
         popularMovies.value = [...res1.results, ...res2.results, ...res3.results].slice(0, 50)
+        getLoading.value = false
     } catch (e) {
         console.error('Error fetching popular movies:', e)
+        getLoading.value = false
         // You could show a toast notification here
     }
 })
 </script>
+
+<style scoped>
+.bolt-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: dashTrail 1.2s linear infinite;
+}
+
+@keyframes dashTrail {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+</style>

@@ -96,6 +96,15 @@ module.exports = {
       fontFamily: {
         sans: ['Poppins', 'sans-serif'],
       },
+      keyframes: {
+        'bolt-trail': {
+          '0%': { 'stroke-dashoffset': '100' },
+          '100%': { 'stroke-dashoffset': '0' },
+        },
+      },
+      animation: {
+        'bolt-trail': 'bolt-trail 1.2s linear infinite',
+      }
     },
   },
   plugins: [],

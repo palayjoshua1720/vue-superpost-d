@@ -68,8 +68,8 @@
       <div class="p-4 border-t border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-center space-x-2 text-xs text-secondary-text dark:text-secondary-dark-text">
           <span>© {{ new Date().getFullYear() }}</span>
-          <span class="w-1 h-1 rounded-full bg-secondary-bg dark:bg-secondary-dark-bg"></span>
-          <span>Developed by Proweaver</span>
+          <span class="w-1 h-1 rounded-full bg-secondary-bg dark:bg-secondary-dark-bg"></span>|
+          <span>Developed by Juicewa</span>
         </div>
       </div>
     </div>

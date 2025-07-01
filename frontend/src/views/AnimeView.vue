@@ -2,9 +2,29 @@
 	<div class="p-4">
 		<div class="flex gap-2 mb-4">
 			<input v-model="search" class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search anime..." />
-			<button @click="handleSearch" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">Search</button>
+			<button @click="handleSearch" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+				<span v-if="searchLoading">Searching...</span>
+				<span v-else>Search</span>
+			</button>
 		</div>
-		<span v-if="searchLoading" class="ml-2 text-blue-600 animate-pulse">Searching...</span>
+		<div v-if="searchLoading" class="flex items-center justify-center py-4">
+			<!-- <div class="animate-spin rounded-full h-24 w-24 border-b-2 border-primary dark:border-primary-dark"></div> -->
+			 <div class="flex justify-center min-h-screen bg-gray-900">
+				<svg
+					class="h-24 w-24 stroke-white animate-bolt-trail"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke-width="1"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path
+					d="M13 2L3 14h7v8l10-12h-7z"
+					class="bolt-path"
+					/>
+				</svg>
+			</div>
+		</div>
 		<div v-if="searchError" class="mt-2 text-red-600">{{ searchError }}</div>
 
 	<div v-if="animeInfo" class="mt-4">
@@ -85,35 +105,54 @@
 
 		<!-- Anime Cards for Selected Genre or Search Results -->
 		<div v-if="selectedGenre" class="mb-8">
-			<div v-if="genreAnimeLoading" class="text-blue-600 mb-2">Loading anime...</div>
-			<div v-else>
-			<h2 class="text-2xl font-bold mb-4">Popular Anime</h2>
-			<div class="flex flex-wrap gap-4">
-				<div
-				v-for="anime in anilistAnimeByGenre[selectedGenre] || []"
-				:key="anime.id"
-				class="w-56 border rounded-lg shadow bg-white hover:shadow-lg transition p-3"
-				>
-				<img :src="anime.coverImage.large" class="w-full h-48 object-cover rounded mb-2" />
-				<div class="font-bold text-base mb-1 text-gray-700">{{ anime.title.romaji || anime.title.english }}</div>
-				<div class="text-xs text-gray-600 mb-1 line-clamp-2" v-html="anime.description"></div>
-				<div class="flex flex-wrap gap-2 text-xs mb-2">
-					<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded" v-for="g in anime.genres" :key="g">{{ g }}</span>
-				</div>
-				<div class="flex flex-wrap gap-2 text-xs mb-2">
-					<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Score: {{ anime.averageScore ?? 'N/A' }}</span>
-					<span class="bg-pink-100 text-pink-800 px-2 py-0.5 rounded">Popularity: {{ anime.popularity ?? 'N/A' }}</span>
-					<span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Episodes: {{ anime.episodes ?? 'N/A' }}</span>
-				</div>
-				<button
-					@click="findStreamingLinksForAnilist(anime)"
-					class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto"
-				>
-					Find Streaming Links
-				</button>
+			<div v-if="genreAnimeLoading" class="flex justify-center py-4">
+				<!-- <div class="animate-spin rounded-full h-24 w-24 border-b-2 border-primary dark:border-primary-dark"></div> -->
+				<div class="flex justify-center min-h-screen bg-gray-900">
+					<svg
+						class="h-24 w-24 stroke-white animate-bolt-trail"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke-width="1"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path
+						d="M13 2L3 14h7v8l10-12h-7z"
+						class="bolt-path"
+						/>
+					</svg>
 				</div>
 			</div>
-			<div v-if="(anilistAnimeByGenre[selectedGenre] || []).length === 0" class="text-gray-500">No anime found for this genre.</div>
+			<div v-else>
+				<h2 class="text-2xl font-bold mb-4">Popular Anime</h2>
+				<div class="flex flex-wrap gap-4">
+					<div
+					v-for="anime in anilistAnimeByGenre[selectedGenre] || []"
+					:key="anime.id"
+					class="w-56 border rounded-lg shadow bg-white hover:shadow-lg transition p-3"
+					>
+					<img :src="anime.coverImage.large" class="w-full h-48 object-cover rounded mb-2" />
+					<div class="font-bold text-base mb-1 text-gray-700">{{ anime.title.romaji || anime.title.english }}</div>
+					<div class="text-xs text-gray-600 mb-1 line-clamp-2" v-html="anime.description"></div>
+					<div class="flex flex-wrap gap-2 text-xs mb-2">
+						<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded" v-for="g in anime.genres" :key="g">{{ g }}</span>
+					</div>
+					<div class="flex flex-wrap gap-2 text-xs mb-2">
+						<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Score: {{ anime.averageScore ?? 'N/A' }}</span>
+						<span class="bg-pink-100 text-pink-800 px-2 py-0.5 rounded">Popularity: {{ anime.popularity ?? 'N/A' }}</span>
+						<span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Episodes: {{ anime.episodes ?? 'N/A' }}</span>
+					</div>
+					<button
+						@click="findStreamingLinksForAnilist(anime)"
+						class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto"
+					>
+						Find Streaming Links
+					</button>
+					</div>
+				</div>
+				<div v-if="(anilistAnimeByGenre[selectedGenre] || []).length === 0" class="text-gray-500">
+					No anime found for this genre.
+				</div>
 			</div>
 		</div>
 	</div>
@@ -476,3 +515,20 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style scoped>
+.bolt-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: dashTrail 1.2s linear infinite;
+}
+
+@keyframes dashTrail {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+</style>
