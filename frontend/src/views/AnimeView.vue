@@ -9,7 +9,7 @@
 		</div>
 		<div v-if="searchLoading" class="flex items-center justify-center py-4">
 			<!-- <div class="animate-spin rounded-full h-24 w-24 border-b-2 border-primary dark:border-primary-dark"></div> -->
-			 <div class="flex justify-center min-h-screen bg-gray-900">
+			<div class="flex justify-center min-h-screen bg-gray-900">
 				<svg
 					class="h-24 w-24 stroke-white animate-bolt-trail"
 					viewBox="0 0 24 24"

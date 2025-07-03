@@ -8,6 +8,7 @@ import CommunityFeedView from '@/views/CommunityFeedView.vue'
 import SpeechAI from '@/views/SpeechAI.vue'
 import AnimeView from '@/views/AnimeView.vue'
 import MovieView from '@/views/MovieView.vue'
+import MangaView from '@/views/MangaView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 import HomeIcon from '@/components/icons/HomeIcon.vue'
@@ -105,6 +106,16 @@ const routes: RouteRecordRaw[] = [
 				meta: {
 					requiresAuth: true,
 					title: 'Movie',
+					icon: MovieIcon
+				}
+			},
+			{
+				path: 'manga',
+				name: 'manga',
+				component: MangaView,
+				meta: {
+					requiresAuth: true,
+					title: 'Manga',
 					icon: MovieIcon
 				}
 			},
