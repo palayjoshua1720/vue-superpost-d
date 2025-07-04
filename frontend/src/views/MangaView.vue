@@ -8,56 +8,236 @@
                 <span v-else>Search</span>
             </button>
         </div>
+        <div v-if="searchLoading" class="flex items-center justify-center py-4">
+			<div class="flex justify-center min-h-screen bg-gray-900">
+				<svg
+					class="h-24 w-24 stroke-white animate-bolt-trail"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke-width="1"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path
+					d="M13 2L3 14h7v8l10-12h-7z"
+					class="bolt-path"
+					/>
+				</svg>
+			</div>
+		</div>
         <div v-if="searchError" class="text-red-600">{{ searchError }}</div>
 
+        <!-- Search Results Section -->
+        <div v-if="search && searchResults.length" class="mt-6">
+            <div class="flex items-center mb-2 gap-2">
+                <h2 class="text-xl font-bold mb-2">Search Results</h2>
+                <button
+                    @click="clearSearch"
+                    class="ml-2 bg-blue-600 text-white px-2 py-1 rounded-full flex items-center gap-1 hover:bg-blue-700"
+                    aria-label="Clear search"
+                    style="line-height: 1;"
+                >
+                    <span class="bg-blue-600 text-white px-4 py-2 rounded font-semibold">{{ search }}</span>
+                    <span class="text-lg leading-none">&times;</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div
+                    v-for="manga in searchResults"
+                    :key="manga.id"
+                    class="w-full border rounded-lg shadow bg-white p-3 flex flex-col cursor-pointer transition-shadow transition-transform duration-200 hover:shadow-2xl hover:scale-105"
+                    @click="openMangaModal(manga)"
+                >
+                    <img :src="manga.coverUrl" class="w-full h-48 object-cover rounded mb-2" style="max-width:100%;height:auto;" />
+                    <div class="font-bold text-base mb-1 text-gray-700">{{ getMangaTitle(manga) }}</div>
+                    <div class="text-xs text-gray-600 mb-1 line-clamp-2" v-html="manga.description.en"></div>
+                    <div class="flex flex-wrap gap-2 text-xs mb-2">
+                        <span
+                            class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                            v-for="tag in manga.tags.slice(0, 3)"
+                            :key="tag.id"
+                        >
+                            {{ tag.attributes.name.en }}
+                        </span>
+                        <button
+                            v-if="manga.tags.length > 3"
+                            class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded cursor-pointer border border-gray-300 hover:bg-gray-300 transition text-xs"
+                            @click="openMangaModal(manga)"
+                            type="button"
+                        >
+                            +{{ manga.tags.length - 3 }} more
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-2 text-xs mb-2">
+                        <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ manga.popularity ?? 'N/A' }}</span>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Year: {{ manga.year ?? 'N/A' }}</span>
+                    </div>
+                    <button @click="openMangaModal(manga)" class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto">
+                        Details & Chapters
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Genre Tabs -->
-        <div v-if="genres.length" class="flex flex-wrap gap-2 mb-6">
+        <div v-if="!search && genres.length" class="mb-6">
+            <h2 data-v-643acaaa="" class="text-2xl font-bold mb-4">Genre</h2>
+            <div class="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                <button
+                    v-for="genre in genres"
+                    :key="genre"
+                    @click="selectedGenre = genre"
+                    :class="[
+                        'inline-block px-4 py-2 rounded-t font-semibold mr-2 mb-2 transition-colors',
+                        selectedGenre === genre ? 'bg-blue-600 text-white shadow' : 'bg-gray-200 text-gray-700 hover:bg-blue-100'
+                    ]"
+                    style="min-width: 100px;"
+                >
+                    {{ genre }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Selected Genre Badge -->
+        <div v-if="!search && selectedGenre" class="flex items-center mb-4 gap-2">
+            <span class="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Genre: {{ selectedGenre }}</span>
             <button
-                v-for="genre in genres"
-                :key="genre"
-                @click="selectedGenre = genre"
-                :class="['px-4 py-2 rounded-t font-semibold', selectedGenre === genre ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700']"
+                @click="selectedGenre = null"
+                class="ml-2 bg-gray-200 text-gray-700 px-2 py-1 rounded-full flex items-center gap-1 hover:bg-red-100"
+                aria-label="Clear genre"
+                style="line-height: 1;"
             >
-                {{ genre }}
+                <span class="text-lg leading-none">&times;</span>
             </button>
         </div>
 
-        <!-- Manga Cards -->
-        <div class="flex flex-wrap gap-4">
-        <div
+        <!-- Popular Manga Section (default view) -->
+        <div v-if="!search && !selectedGenre">
+            <div v-if="popularLoading" class="flex justify-center py-4">
+                <div class="flex justify-center min-h-screen bg-gray-900">
+                    <svg
+                        class="h-24 w-24 stroke-white animate-bolt-trail"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke-width="1"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                        d="M13 2L3 14h7v8l10-12h-7z"
+                        class="bolt-path"
+                        />
+                    </svg>
+                </div>
+            </div>
+            <div v-else-if="popularManga.length">
+                <h2 class="text-2xl font-bold mb-4">Popular Manga</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div
+                        v-for="manga in popularManga"
+                        :key="manga.id"
+                        class="w-full border rounded-lg shadow bg-white p-3 flex flex-col cursor-pointer transition-shadow transition-transform duration-200 hover:shadow-2xl hover:scale-105"
+                        @click="openMangaModal(manga)"
+                    >
+                        <img :src="manga.coverUrl" class="w-full h-48 object-cover rounded mb-2" style="max-width:100%;height:auto;" />
+                        <div class="font-bold text-base mb-1 text-gray-700">{{ getMangaTitle(manga) }}</div>
+                        <div class="text-xs text-gray-600 mb-1 line-clamp-2" v-html="manga.description.en"></div>
+                        <div class="flex flex-wrap gap-2 text-xs mb-2">
+                            <span
+                                class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                                v-for="tag in manga.tags.slice(0, 3)"
+                                :key="tag.id"
+                            >
+                                {{ tag.attributes.name.en }}
+                            </span>
+                            <button
+                                v-if="manga.tags.length > 3"
+                                class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded cursor-pointer border border-gray-300 hover:bg-gray-300 transition text-xs"
+                                @click.stop="openMangaModal(manga)"
+                                type="button"
+                            >
+                                +{{ manga.tags.length - 3 }} more
+                            </button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-xs mb-2">
+                            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ manga.popularity ?? 'N/A' }}</span>
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Year: {{ manga.year ?? 'N/A' }}</span>
+                        </div>
+                        <button @click.stop="openMangaModal(manga)" class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto">
+                            Details & Chapters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manga Cards (by genre) -->
+        <div v-if="!search && selectedGenre && displayManga.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div
                 v-for="manga in displayManga"
                 :key="manga.id"
-                class="w-56 border rounded-lg shadow bg-white p-3 flex flex-col"
+                class="w-full border rounded-lg shadow bg-white p-3 flex flex-col cursor-pointer transition-shadow transition-transform duration-200 hover:shadow-2xl hover:scale-105"
+                @click="openMangaModal(manga)"
             >
-                <img :src="manga.coverUrl" class="w-full h-48 object-cover rounded mb-2" />
-                <div class="font-bold text-base mb-1 text-gray-700">{{ manga.title.en }}</div>
+                <img :src="manga.coverUrl" class="w-full h-48 object-cover rounded mb-2" style="max-width:100%;height:auto;" />
+                <div class="font-bold text-base mb-1 text-gray-700">{{ getMangaTitle(manga) }}</div>
                 <div class="text-xs text-gray-600 mb-1 line-clamp-2" v-html="manga.description.en"></div>
                 <div class="flex flex-wrap gap-2 text-xs mb-2">
-                    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded" v-for="tag in manga.tags" :key="tag.id">{{ tag.attributes.name.en }}</span>
+                    <span
+                        class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                        v-for="tag in manga.tags.slice(0, 3)"
+                        :key="tag.id"
+                    >
+                        {{ tag.attributes.name.en }}
+                    </span>
+                    <button
+                        v-if="manga.tags.length > 3"
+                        class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded cursor-pointer border border-gray-300 hover:bg-gray-300 transition text-xs"
+                        @click="openMangaModal(manga)"
+                        type="button"
+                    >
+                        +{{ manga.tags.length - 3 }} more
+                    </button>
                 </div>
                 <div class="flex flex-wrap gap-2 text-xs mb-2">
                     <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ manga.popularity ?? 'N/A' }}</span>
                     <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Year: {{ manga.year ?? 'N/A' }}</span>
                 </div>
                 <button @click="openMangaModal(manga)" class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto">
-                Details & Chapters
+                    Details & Chapters
                 </button>
             </div>
         </div>
 
         <!-- Manga Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white rounded-lg p-6 max-w-2xl w-full relative overflow-y-auto flex flex-col">
+            <div class="bg-white rounded-lg p-4 sm:p-6 max-w-full sm:max-w-2xl w-full relative overflow-y-auto flex flex-col max-h-[95vh]">
                 <button @click="showModal = false" class="absolute top-3 right-2 text-gray-600 text-2xl">&times;</button>
                 <div class="flex-1 flex flex-col gap-6">
                     <div v-if="modalManga">
-                        <div class="flex gap-6 mb-4">
-                            <img :src="modalManga.coverUrl" class="w-32 h-44 object-cover rounded" />
+                        <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
+                            <img :src="modalManga.coverUrl" class="w-32 h-44 object-cover rounded mx-auto sm:mx-0" />
                             <div>
-                                <h2 class="text-xl font-bold mb-2 text-gray-700">{{ modalManga.title.en }}</h2>
+                                <h2 class="text-xl font-bold mb-2 text-gray-700">{{ getMangaTitle(modalManga) }}</h2>
+                                <div class="mb-2 text-gray-600 text-sm">
+                                    <template v-if="modalManga.authors && modalManga.authors.length">
+                                        <span v-if="modalManga.authors.length === 1">Author:</span>
+                                        <span v-else>Authors:</span>
+                                        {{ modalManga.authors.join(', ') }}
+                                    </template>
+                                    <template v-else>
+                                        Author: Unavailable
+                                    </template>
+                                </div>
                                 <p class="text-gray-600 mb-2" v-html="modalManga.description.en"></p>
                                 <div class="flex flex-wrap gap-2 text-xs mb-2">
-                                    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded" v-for="tag in modalManga.tags" :key="tag.id">{{ tag.attributes.name.en }}</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded"
+                                        v-for="tag in modalManga.tags"
+                                        :key="tag.id"
+                                    >
+                                        {{ tag.attributes.name.en }}
+                                    </span>
                                 </div>
                                 <div class="flex flex-wrap gap-2 text-xs mb-2">
                                     <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ modalManga.popularity ?? 'N/A' }}</span>
@@ -73,7 +253,7 @@
 
         <!-- Chapters Modal -->
         <div v-if="showChaptersModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white rounded-lg p-6 max-w-2xl w-full relative max-h-[80vh] overflow-y-auto flex flex-col">
+            <div class="bg-white rounded-lg p-4 sm:p-6 max-w-full sm:max-w-2xl w-full relative max-h-[90vh] overflow-y-auto flex flex-col">
                 <button @click="closeChaptersModal" class="absolute top-3 right-2 text-gray-600 text-2xl">&times;</button>
                 <div class="pt-2 pb-4 flex-1 flex flex-col">
                     <h3 class="font-semibold text-lg mb-4 text-gray-700">Chapters</h3>
@@ -91,7 +271,7 @@
 
         <!-- Chapter Modal -->
         <div v-if="showChapterModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ">
-            <div class="bg-white rounded-lg p-6 max-w-2xl w-full relative max-h-[90vh] flex flex-col">
+            <div class="bg-white rounded-lg p-4 sm:p-6 max-w-full sm:max-w-2xl w-full relative max-h-[95vh] flex flex-col overflow-y-auto">
                 <button @click="showChapterModal = false" class="absolute top-3 right-2 text-gray-600 text-2xl">&times;</button>
                 <div v-if="selectedChapter">
                     <h2 class="text-xl font-bold mb-4 text-gray-700">Chapter {{ selectedChapter.chapter }}: {{ selectedChapter.title }}</h2>
@@ -129,7 +309,7 @@
                         <div v-if="chapterPages.length">
                             <div class="overflow-y-auto" style="max-height: 70vh; scrollbar-width: none; -ms-overflow-style: none;">
                                 <div v-for="(img, idx) in chapterPages" :key="idx" class="mb-4">
-                                    <img :src="img" class="w-full" />
+                                    <img :src="img" class="w-full max-h-[60vh] object-contain mx-auto" />
                                 </div>
                             </div>
                         </div>
@@ -178,9 +358,9 @@ const selectedChapterIndex = computed(() =>
 const displayManga = computed(() => {
     if (search.value && searchResults.value.length) return searchResults.value;
     if (selectedGenre.value && mangaByGenre.value[selectedGenre.value]) return mangaByGenre.value[selectedGenre.value];
+    if (!selectedGenre.value && !search.value) return popularManga.value;
     return [];
 });
-
 
 const handleSearch = async () => {
     if (!search.value.trim()) return;
@@ -226,12 +406,15 @@ const openChapterModal = async (chapter: MangaDexChapter) => {
     }
 };
 
+const clearSearch = () => {
+    search.value = '';
+    searchResults.value = [];
+    searchError.value = '';
+};
+
 onMounted(async () => {
     genres.value = await fetchMangaGenres();
-    if (genres.value.length) {
-        selectedGenre.value = genres.value[0];
-        await loadMangaForGenre(selectedGenre.value);
-    }
+    // Do not select a genre by default
     // Fetch and sort popular manga
     popularLoading.value = true;
     let popular = await fetchPopularManga();
@@ -258,4 +441,55 @@ watch(selectedGenre, async (genre) => {
         await loadMangaForGenre(genre);
     }
 });
+
+// Debounce utility
+function debounce(fn: (...args: any[]) => void, delay: number) {
+    let timeout: ReturnType<typeof setTimeout>;
+    return (...args: any[]) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+    };
+}
+
+const debouncedSearch = debounce(() => {
+    if (search.value.trim()) {
+        handleSearch();
+    } else {
+        searchResults.value = [];
+        searchError.value = '';
+    }
+}, 400);
+
+watch(search, () => {
+    debouncedSearch();
+});
+
+// Helper to get the best available manga title
+const getMangaTitle = (manga: any) => {
+    return (
+        manga?.title?.en ||
+        manga?.title?.['ja-ro'] ||
+        manga?.title?.romaji ||
+        manga?.title?.ja ||
+        (manga?.title ? Object.values(manga.title)[0] : '') ||
+        'No Title'
+    );
+};
 </script>
+
+<style scoped>
+.bolt-path {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: dashTrail 1.2s linear infinite;
+}
+
+@keyframes dashTrail {
+    0% {
+        stroke-dashoffset: 100;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+</style>
