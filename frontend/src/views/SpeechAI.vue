@@ -92,7 +92,7 @@ export default {
 
       try {
         const res = await axios.post(
-          'https://openrouter.ai/api/v1/chat/completions',
+          '/api/chat', // Use your backend proxy!
           {
             model: 'openai/gpt-4o',
             messages: [
@@ -105,12 +105,6 @@ export default {
                 })),
             ],
             max_tokens: 800,
-          },
-          {
-            headers: {
-              Authorization: `Bearer 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`,
-              // 'HTTP-Referer': 'http://localhost:5173',
-            },
           }
         );
 
