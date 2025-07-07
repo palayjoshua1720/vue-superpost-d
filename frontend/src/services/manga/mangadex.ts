@@ -6,7 +6,8 @@ const API = 'https://api.mangadex.org';
 const CORS_PROXY = 'https://corsproxy.io/?';
 
 export async function fetchPopularManga(limit = 54): Promise<MangaDexManga[]> {
-    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(`${API}/manga`)}`, {
+    const url = `${API}/manga`;
+    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(url)}`, {
         params: {
             limit,
             order: { followedCount: 'desc' },
@@ -18,12 +19,14 @@ export async function fetchPopularManga(limit = 54): Promise<MangaDexManga[]> {
 }
 
 export async function fetchMangaGenres(): Promise<string[]> {
-    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(`${API}/manga/tag`)}`);
+    const url = `${API}/manga/tag`;
+    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(url)}`);
     return res.data.data.map((tag: any) => tag.attributes.name.en);
 }
 
 export async function searchManga(query: string, limit = 24): Promise<MangaDexManga[]> {
-    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(`${API}/manga`)}`, {
+    const url = `${API}/manga`;
+    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(url)}`, {
         params: {
             title: query,
             limit,
@@ -36,10 +39,13 @@ export async function searchManga(query: string, limit = 24): Promise<MangaDexMa
 
 export async function fetchMangaByGenre(genre: string, limit = 54): Promise<MangaDexManga[]> {
     // Find tag id for genre
-    const tagsRes = await axios.get(`${CORS_PROXY}${encodeURIComponent(`${API}/manga/tag`)}`);
+    const tagsUrl = `${API}/manga/tag`;
+    const tagsRes = await axios.get(`${CORS_PROXY}${encodeURIComponent(tagsUrl)}`);
     const tag = tagsRes.data.data.find((t: any) => t.attributes.name.en === genre);
     if (!tag) return [];
-    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(`${API}/manga`)}`, {
+    
+    const url = `${API}/manga`;
+    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(url)}`, {
         params: {
             limit,
             includes: ['cover_art'],
@@ -51,7 +57,8 @@ export async function fetchMangaByGenre(genre: string, limit = 54): Promise<Mang
 }
 
 export async function fetchMangaDetails(mangaId: string): Promise<MangaDexManga> {
-    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(`${API}/manga/${mangaId}`)}`, {
+    const url = `${API}/manga/${mangaId}`;
+    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(url)}`, {
         params: { includes: ['cover_art'] },
     });
     return mapMangaDexManga(res.data.data);
@@ -62,7 +69,8 @@ export async function fetchMangaChapters(mangaId: string, limit = 500): Promise<
     let offset = 0;
     let hasMore = true;
     while (hasMore && chapters.length < limit) {
-        const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(`${API}/manga/${mangaId}/feed`)}`, {
+        const url = `${API}/manga/${mangaId}/feed`;
+        const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(url)}`, {
             params: {
             limit: 100,
             offset,
@@ -78,7 +86,8 @@ export async function fetchMangaChapters(mangaId: string, limit = 500): Promise<
 }
 
 export async function fetchChapterPages(chapterId: string): Promise<string[]> {
-    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(`https://api.mangadex.org/at-home/server/${chapterId}`)}`);
+    const url = `https://api.mangadex.org/at-home/server/${chapterId}`;
+    const res = await axios.get(`${CORS_PROXY}${encodeURIComponent(url)}`);
     const { baseUrl, chapter } = res.data;
     // chapter.data is an array of filenames, chapter.hash is the hash
     return chapter.data.map((filename: string) => `${baseUrl}/data/${chapter.hash}/${filename}`);
