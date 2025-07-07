@@ -71,6 +71,7 @@
                     <div class="flex flex-wrap gap-2 text-xs mb-2">
                         <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ manga.popularity ?? 'N/A' }}</span>
                         <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Year: {{ manga.year ?? 'N/A' }}</span>
+                        <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">Status: {{ getMangaStatus(manga) }}</span>
                     </div>
                     <button @click="openMangaModal(manga)" class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto">
                         Details & Chapters
@@ -162,11 +163,51 @@
                         <div class="flex flex-wrap gap-2 text-xs mb-2">
                             <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ manga.popularity ?? 'N/A' }}</span>
                             <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Year: {{ manga.year ?? 'N/A' }}</span>
+                            <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">Status: {{ getMangaStatus(manga) }}</span>
                         </div>
                         <button @click.stop="openMangaModal(manga)" class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto">
                             Details & Chapters
                         </button>
                     </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8 mb-4">
+                    <button
+                        @click="loadPopularMangaPage(Math.max(1, currentPage - 1))"
+                        :disabled="currentPage === 1"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 transition-colors"
+                    >
+                        Previous
+                    </button>
+                    
+                    <div class="flex gap-1">
+                        <button
+                            v-for="page in visiblePages"
+                            :key="page"
+                            @click="loadPopularMangaPage(page)"
+                            :class="[
+                                'px-3 py-2 rounded-lg transition-colors',
+                                currentPage === page
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            ]"
+                        >
+                            {{ page }}
+                        </button>
+                    </div>
+                    
+                    <button
+                        @click="loadPopularMangaPage(Math.min(totalPages, currentPage + 1))"
+                        :disabled="currentPage === totalPages"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 transition-colors"
+                    >
+                        Next
+                    </button>
+                </div>
+                
+                <div class="text-center text-gray-600 text-sm mb-4">
+                    Page {{ currentPage }} of {{ totalPages }} - Showing {{ popularManga.length }} manga
                 </div>
             </div>
         </div>
@@ -202,6 +243,7 @@
                 <div class="flex flex-wrap gap-2 text-xs mb-2">
                     <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ manga.popularity ?? 'N/A' }}</span>
                     <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Year: {{ manga.year ?? 'N/A' }}</span>
+                    <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">Status: {{ getMangaStatus(manga) }}</span>
                 </div>
                 <button @click="openMangaModal(manga)" class="bg-purple-600 text-white px-2 py-1 text-xs rounded w-full mt-auto">
                     Details & Chapters
@@ -242,6 +284,7 @@
                                 <div class="flex flex-wrap gap-2 text-xs mb-2">
                                     <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded">Popularity: {{ modalManga.popularity ?? 'N/A' }}</span>
                                     <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Year: {{ modalManga.year ?? 'N/A' }}</span>
+                                    <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">Status: {{ getMangaStatus(modalManga) }}</span>
                                 </div>
                                 <button @click="openChaptersModal" class="bg-purple-600 text-white px-3 py-1 text-xs rounded mt-2">View Chapters</button>
                             </div>
@@ -351,6 +394,8 @@ const chapterLoading = ref(false);
 const popularManga = ref<MangaDexManga[]>([]);
 const popularLoading = ref(true);
 const showChaptersModal = ref(false);
+const currentPage = ref(1);
+const itemsPerPage = ref(54); // Fetch 54 manga per page
 const selectedChapterIndex = computed(() =>
     chapters.value.findIndex(chap => chap.id === selectedChapter.value?.id)
 );
@@ -360,6 +405,33 @@ const displayManga = computed(() => {
     if (selectedGenre.value && mangaByGenre.value[selectedGenre.value]) return mangaByGenre.value[selectedGenre.value];
     if (!selectedGenre.value && !search.value) return popularManga.value;
     return [];
+});
+
+// Pagination computed properties
+const totalPages = ref(10); // We'll estimate total pages, can be updated based on API response
+
+const visiblePages = computed(() => {
+    const total = totalPages.value;
+    const current = currentPage.value;
+    const delta = 2; // Show 2 pages before and after current page
+    
+    let start = Math.max(1, current - delta);
+    let end = Math.min(total, current + delta);
+    
+    // Adjust if we're near the beginning or end
+    if (end - start < 4) {
+        if (start === 1) {
+            end = Math.min(total, start + 4);
+        } else {
+            start = Math.max(1, end - 4);
+        }
+    }
+    
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+        pages.push(i);
+    }
+    return pages;
 });
 
 const handleSearch = async () => {
@@ -415,14 +487,27 @@ const clearSearch = () => {
 onMounted(async () => {
     genres.value = await fetchMangaGenres();
     // Do not select a genre by default
-    // Fetch and sort popular manga
-    popularLoading.value = true;
-    let popular = await fetchPopularManga();
-    // Sort by rating (desc), fallback to popularity (desc)
-    popular.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || (b.popularity ?? 0) - (a.popularity ?? 0));
-    popularManga.value = popular;
-    popularLoading.value = false;
+    // Fetch first page of popular manga
+    await loadPopularMangaPage(1);
 });
+
+const loadPopularMangaPage = async (page: number) => {
+    popularLoading.value = true;
+    try {
+        // Calculate offset for the page
+        const offset = (page - 1) * itemsPerPage.value;
+        // Fetch manga for the specific page
+        let popular = await fetchPopularManga(itemsPerPage.value, offset);
+        // Sort by rating (desc), fallback to popularity (desc)
+        popular.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || (b.popularity ?? 0) - (a.popularity ?? 0));
+        popularManga.value = popular;
+        currentPage.value = page;
+    } catch (error) {
+        console.error('Error loading popular manga:', error);
+    } finally {
+        popularLoading.value = false;
+    }
+};
 
 function goToPreviousChapter() {
     if (selectedChapterIndex.value > 0) {
@@ -474,6 +559,25 @@ const getMangaTitle = (manga: any) => {
         (manga?.title ? Object.values(manga.title)[0] : '') ||
         'No Title'
     );
+};
+
+// Helper to get manga status
+const getMangaStatus = (manga: any) => {
+    const status = manga?.status;
+    if (!status) return 'Unknown';
+    
+    switch (status) {
+        case 'ongoing':
+            return 'Ongoing';
+        case 'completed':
+            return 'Completed';
+        case 'hiatus':
+            return 'Hiatus';
+        case 'cancelled':
+            return 'Cancelled';
+        default:
+            return status.charAt(0).toUpperCase() + status.slice(1);
+    }
 };
 </script>
 

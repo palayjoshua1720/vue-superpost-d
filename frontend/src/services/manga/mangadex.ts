@@ -26,9 +26,10 @@ function buildUrl(endpoint: string, params?: any): string {
     return `${CORS_PROXY}${encodeURIComponent(url.toString())}`;
 }
 
-export async function fetchPopularManga(limit = 54): Promise<MangaDexManga[]> {
+export async function fetchPopularManga(limit = 54, offset = 0): Promise<MangaDexManga[]> {
     const url = buildUrl('/manga', {
         limit,
+        offset,
         order: { followedCount: 'desc' },
         includes: ['cover_art'],
         availableTranslatedLanguage: ['en'],
