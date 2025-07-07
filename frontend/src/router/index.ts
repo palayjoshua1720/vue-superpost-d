@@ -18,6 +18,7 @@ import CommunityFeedIcon from '@/components/icons/communityIcons/CommunityFeedIc
 import AnimeIcon from '@/components/icons/AnimeIcon.vue'
 import MovieIcon from '@/components/icons/MovieIcon.vue'
 import AiIcon from '@/components/icons/AiIcon.vue'
+import MangaIcon from '@/components/icons/MangaIcon.vue'
 
 // Types
 interface NavigationItem {
@@ -116,7 +117,7 @@ const routes: RouteRecordRaw[] = [
 				meta: {
 					requiresAuth: true,
 					title: 'Manga',
-					icon: MovieIcon
+					icon: MangaIcon
 				}
 			},
 		]
