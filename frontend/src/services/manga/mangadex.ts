@@ -118,8 +118,8 @@ function mapMangaDexManga(m: any): MangaDexManga {
         title: m.attributes.title,
         description: m.attributes.description,
         coverUrl: coverFile
-        ? `https://uploads.mangadex.org/covers/${m.id}/${coverFile}.256.jpg`
-        : '',
+            ? `https://images.weserv.nl/?url=uploads.mangadex.org/covers/${m.id}/${coverFile}.256.jpg`
+            : '',
         tags: m.attributes.tags,
         year: m.attributes.year,
         status: m.attributes.status,
