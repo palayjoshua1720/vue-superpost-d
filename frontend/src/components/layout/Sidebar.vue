@@ -103,7 +103,7 @@ const route = useRoute()
 const router = useRouter()
 
 // Computed Properties
-const appTitle = computed(() => process.env.VUE_APP_TITLE || 'Gappy')
+const appTitle = computed(() => process.env.VUE_APP_TITLE || 'Superpost')
 const navigation = computed(() => getNavigationItems(router.options.routes))
 
 // Methods
