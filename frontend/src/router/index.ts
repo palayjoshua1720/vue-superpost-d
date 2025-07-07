@@ -86,7 +86,7 @@ const routes: RouteRecordRaw[] = [
 				component: SpeechAI,
 				meta: {
 					requiresAuth: true,
-					title: 'AI',
+					title: 'Gappy',
 					icon: AiIcon
 				}
 			},
