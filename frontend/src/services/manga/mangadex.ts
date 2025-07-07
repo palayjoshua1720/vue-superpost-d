@@ -12,7 +12,7 @@ function buildUrl(endpoint: string, params?: any): string {
         Object.keys(params).forEach(key => {
             if (Array.isArray(params[key])) {
                 params[key].forEach((value: any) => {
-                    url.searchParams.append(key, value);
+                    url.searchParams.append(`${key}[]`, value);
                 });
             } else if (typeof params[key] === 'object') {
                 Object.keys(params[key]).forEach(subKey => {
