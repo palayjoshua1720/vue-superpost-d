@@ -1,5 +1,22 @@
 <template>
 	<div class="p-6 min-h-screen">
+		<div v-if="loading" class="flex items-center justify-center py-4">
+			<div class="flex justify-center min-h-screen">
+				<svg
+					class="h-24 w-24 stroke-white"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke-width="1"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path
+						d="M13 2L3 14h7v8l10-12h-7z"
+						class="bolt-path"
+					/>
+				</svg>
+			</div>
+		</div>
 		<!-- Genre filter -->
 		<div class="flex flex-wrap gap-2 mb-4 items-center">
 			<label class="font-semibold">Genre:</label>
@@ -14,23 +31,7 @@
 				<button @click="clearSearch" class="ml-1 text-green-700 hover:text-red-600 text-lg font-bold">&times;</button>
 			</span>
 		</div>
-	<div v-if="loading" class="flex items-center justify-center py-4">
-		<div class="flex justify-center min-h-screen">
-			<svg
-				class="h-24 w-24 stroke-white"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke-width="1"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<path
-					d="M13 2L3 14h7v8l10-12h-7z"
-					class="bolt-path"
-				/>
-			</svg>
-		</div>
-	</div>
+	
 	<template v-else>
 		<div class="flex gap-4 mb-8">
 			<input v-model="search" @keyup.enter="handleSearch" class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search music..." />
@@ -66,7 +67,7 @@
 
 			<h2 class="text-xl font-semibold mb-4 ">Trending Playlists</h2>
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-			<div v-for="playlist in trendingPlaylists" :key="playlist.id" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+			<div v-for="playlist in trendingPlaylists" :key="playlist.id" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer" @click="openPlaylistModal(playlist)">
 				<div class="flex items-center gap-4 mb-3">
 				<img :src="getArtworkUrl(playlist.artwork)" class="w-16 h-16 object-cover rounded" />
 				<div class="flex-1 min-w-0">
@@ -161,6 +162,40 @@
 				</div>
 			</div>
 		</div>
+		<!-- Playlist Modal -->
+		<div v-if="playlistModalOpen && selectedPlaylist" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+			<div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative flex flex-col gap-4 max-h-[80vh]">
+				<button @click="closePlaylistModal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+				<div class="flex gap-6">
+					<img :src="getArtworkUrl(selectedPlaylist.artwork)" class="w-32 h-32 object-cover rounded-lg shadow" />
+					<div class="flex-1 min-w-0 flex flex-col gap-2">
+						<div class="font-bold text-2xl text-gray-900 truncate">{{ selectedPlaylist.title }}</div>
+						<div class="text-sm text-gray-600 truncate">by {{ selectedPlaylist.user?.name || selectedPlaylist.user?.handle }}</div>
+						<div class="text-xs text-gray-500">Tracks: {{ selectedPlaylist.track_count }}</div>
+						<div class="text-xs text-gray-500">Playlist ID: {{ selectedPlaylist.id }}</div>
+					</div>
+				</div>
+				<div class="mt-4 text-gray-700 text-sm">
+					<span v-if="selectedPlaylist.description">{{ selectedPlaylist.description }}</span>
+					<span v-else>No description available for this playlist.</span>
+				</div>
+				<div class="mt-6 flex-1 min-h-0 flex flex-col">
+					<div class="font-semibold mb-2 text-gray-800">Tracks in this playlist:</div>
+					<div class="divide-y divide-gray-200 overflow-y-auto" style="max-height: 40vh;">
+						<div v-for="track in selectedPlaylist.tracks" :key="track.id" class="flex items-center py-2 gap-2">
+							<div class="flex-1 min-w-0">
+								<div class="truncate font-medium text-gray-900">{{ track.title }}</div>
+								<div class="text-xs text-gray-500 truncate">{{ track.user?.name || track.user?.handle }}</div>
+							</div>
+							<div class="text-xs text-gray-500 w-16 text-right">{{ formatTime(track.duration) }}</div>
+							<button @click="playTrack(track)" class="ml-2 bg-green-600 text-white rounded-full p-2 hover:bg-green-700 transition-colors">
+								<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v18l15-9-15-9z" /></svg>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</template>
 	</div>
 </template>
@@ -182,6 +217,8 @@ const currentTime = ref(0);
 const duration = ref(0);
 const modalOpen = ref(false);
 const selectedTrack = ref<AudiusTrack | null>(null);
+const playlistModalOpen = ref(false);
+const selectedPlaylist = ref<AudiusPlaylist | null>(null);
 
 const genres = [
   'All',
@@ -258,6 +295,15 @@ function openTrackModal(track: AudiusTrack) {
 function closeTrackModal() {
 	modalOpen.value = false;
 	selectedTrack.value = null;
+}
+
+function openPlaylistModal(playlist: AudiusPlaylist) {
+  selectedPlaylist.value = playlist;
+  playlistModalOpen.value = true;
+}
+function closePlaylistModal() {
+  playlistModalOpen.value = false;
+  selectedPlaylist.value = null;
 }
 
 function onAudioCanPlay() {
