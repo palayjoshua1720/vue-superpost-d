@@ -123,7 +123,7 @@
 				</div>
 			</main>
 			<!-- Add Chatbox here so it's always visible -->
-      		<Chatbox />
+			<!-- <Chatbox /> -->
 		</div>
 	</div>
 </template>

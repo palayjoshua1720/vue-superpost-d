@@ -11,6 +11,7 @@ import MovieView from '@/views/MovieView.vue'
 import MangaView from '@/views/MangaView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+import RequiemView from '@/views/RequiemView.vue'
 import HomeIcon from '@/components/icons/HomeIcon.vue'
 import AboutIcon from '@/components/icons/AboutIcon.vue'
 import ProfileIcon from '@/components/icons/ProfileIcon.vue'
@@ -19,6 +20,7 @@ import AnimeIcon from '@/components/icons/AnimeIcon.vue'
 import MovieIcon from '@/components/icons/MovieIcon.vue'
 import AiIcon from '@/components/icons/AiIcon.vue'
 import MangaIcon from '@/components/icons/MangaIcon.vue'
+import RequiemIcon from '@/components/icons/RequiemIcon.vue'
 
 // Types
 interface NavigationItem {
@@ -118,6 +120,16 @@ const routes: RouteRecordRaw[] = [
 					requiresAuth: true,
 					title: 'Manga',
 					icon: MangaIcon
+				}
+			},
+			{
+				path: 'requiem',
+				name: 'requiem',
+				component: RequiemView,
+				meta: {
+					requiresAuth: true,
+					title: 'Requiem',
+					icon: RequiemIcon
 				}
 			},
 		]
