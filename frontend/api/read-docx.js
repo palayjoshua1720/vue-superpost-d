@@ -1,5 +1,7 @@
 const formidable = require('formidable');
 const mammoth = require('mammoth');
+const fs = require('fs');
+const xlsx = require('xlsx');
 
 // Enable CORS and disable default body parser for file uploads
 export const config = {
@@ -43,9 +45,28 @@ export default async function handler(req, res) {
 
         if (!file) return res.status(400).json({ error: 'No file uploaded' });
 
+        // Detect file type by extension
+        const fileName = file.originalFilename || file.newFilename || file.filepath;
+        const ext = fileName.split('.').pop().toLowerCase();
+
+        let docText = '';
         try {
-            // Extract text from the docx file
-            const { value: docText } = await mammoth.extractRawText({ path: file.filepath });
+            if (ext === 'docx') {
+                // Extract text from docx
+                const result = await mammoth.extractRawText({ path: file.filepath });
+                docText = result.value;
+            } else if (ext === 'txt' || ext === 'csv') {
+                // Read as plain text
+                docText = fs.readFileSync(file.filepath, 'utf8');
+            } else if (ext === 'xls' || ext === 'xlsx') {
+                // Read Excel file and convert to CSV string
+                const workbook = xlsx.readFile(file.filepath);
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                docText = xlsx.utils.sheet_to_csv(sheet);
+            } else {
+                return res.status(400).json({ error: 'Unsupported file type' });
+            }
 
             // Compose the AI prompt
             const aiPrompt = `
@@ -96,7 +117,7 @@ export default async function handler(req, res) {
                 aiResponse,
             });
         } catch (e) {
-            res.status(500).json({ error: 'Failed to process docx file.' });
+            res.status(500).json({ error: 'Failed to process file.' });
         }
     });
 } 

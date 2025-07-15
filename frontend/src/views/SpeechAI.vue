@@ -116,7 +116,7 @@
         />
         <!-- File upload input -->
         <label class="flex items-center cursor-pointer ml-2">
-          <input type="file" accept=".docx" class="hidden" @change="onFileChange" />
+          <input type="file" accept=".docx,.txt,.csv,.xls,.xlsx" class="hidden" @change="onFileChange" />
           <span class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-300 shadow hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </span>
