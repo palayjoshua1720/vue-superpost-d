@@ -72,19 +72,16 @@ export default async function handler(req, res) {
 
             // Compose the AI prompt
             let aiPrompt = '';
-            const isPromptValid = prompt && prompt.trim().length > 2;
 
             if (prompt && prompt.trim().length > 2) {
                 aiPrompt = `
-                    Always address the user as Sir.
-
-                    You are Gappy, a formal, helpful AI assistant. The user uploaded a document. Here is the content:
+                    You are a helpful assistant. The user uploaded a document. Here is the content:
 
                     ${docText.slice(0, 8000)}
 
-                    ${isPromptValid ? `User question: ${prompt}` : `No specific question was provided.`}
+                    User question: ${prompt}
 
-                    Answer in detail and lease analyze the document and provide relevant information. Then, suggest follow-up questions the user may want to ask or next actions to consider.
+                    Answer in detail:
                 `.trim();
             } else {
                 // Optional: handle empty or "test"-only prompts gracefully
