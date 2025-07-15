@@ -95,10 +95,11 @@
 			<!-- Chat area -->
 			<div class="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-gray-50 dark:bg-gray-900/80 transition-colors duration-300" ref="chatContainer">
 				<div v-if="messages.length">
-					<div v-for="(msg, i) in messages" :key="i" class="flex items-end group" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+					<div v-for="(msg, i) in messages" :key="i" class="flex items-end group py-3" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
 						<div v-if="msg.role === 'assistant'" class="flex items-end gap-2">
-							<div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center shadow">
-								<svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M8 15s1.5 2 4 2 4-2 4-2" /><path d="M9 9h.01" /><path d="M15 9h.01" /></svg>
+							<div data-v-7f9e6556="" class="w-8 h-8 rounded-full flex items-center justify-center shadow mb-2 bg-gradient-to-br from-blue-400 to-purple-400 dark:from-indigo-900 dark:to-purple-900">
+								<svg data-v-7f9e6556="" viewBox="0 0 24 24" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg"><circle data-v-7f9e6556="" cx="12" cy="12" r="12" fill="url(#grad)"></circle><path data-v-7f9e6556="" d="M13 2L3 14h7v8l10-12h-7z" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><circle data-v-7f9e6556="" cx="17" cy="6" r="1" fill="#A5B4FC"></circle><circle data-v-7f9e6556="" cx="6.5" cy="17.5" r="0.8" fill="#F472B6"></circle><path data-v-7f9e6556="" d="M9.5 10a2.5 2.5 0 1 1 2.5 2.5h-1" stroke="rgba(255,255,255,0.3)" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"></path><defs data-v-7f9e6556=""><radialGradient data-v-7f9e6556="" id="grad" cx="50%" cy="50%" r="50%"><stop data-v-7f9e6556="" offset="0%" stop-color="#6D28D9"></stop><stop data-v-7f9e6556="" offset="100%" stop-color="#1E1B4B"></stop></radialGradient></defs>
+								</svg>
 							</div>
 							<div class="bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-2xl shadow-md max-w-[75%] animate-fade-in">
 								<span v-html="msg.content.replace(/\n/g, '<br>')"></span>
