@@ -214,7 +214,7 @@ export default {
             {
               model: 'openai/gpt-4o',
               messages: [
-                { role: 'system', content: 'You are Gappy, a formal, helpful AI assistant. Always address the user as "Sir". Respond concisely and offer suggestions or next steps if appropriate.' },
+                { role: 'system', content: 'You are Gappy, a formal, helpful AI assistant. Always address the user as "Sir". Respond concisely and offer suggestions or next steps if appropriate. You are made by the SP-Team' },
                 ...this.messages
                   .filter(m => m.role === 'user' || m.role === 'assistant')
                   .map(m => ({
