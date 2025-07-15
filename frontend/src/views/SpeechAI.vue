@@ -68,16 +68,6 @@
 							{{ historyError ? historyError : 'No topics yet.' }}
 						</div>
 					</div>
-					<div v-else>
-						<div class="flex-1 overflow-y-auto px-4 py-3">
-							<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Chats</div>
-							<ul class="space-y-1">
-								<li class="bg-blue-50 dark:bg-gray-800 rounded px-3 py-1 text-gray-700 dark:text-gray-200 text-xs truncate cursor-default">
-									Erorr message here
-								</li>
-							</ul>
-						</div>
-					</div>
 
 					<div class="flex-1 overflow-y-auto px-4 py-3">
 						<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Sample Prompts</div>
@@ -205,7 +195,7 @@
 					autocomplete="off"
 				/>
 
-				<button type="submit" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
+				<button type="submit" :disabled="loading || !prompt.trim()" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
 					<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
 				</button>
 
@@ -294,7 +284,7 @@ export default {
 			this.fileName = '';
 		},
 		async handleAsk() {
-			if (!this.prompt.trim() && !this.file) return;
+			if (!this.prompt.trim()) return;
 			let promptToSend = this.prompt;
 			if (this.file) {
 				const fileInfo = `\n[uploaded ${this.file.name}]`;
@@ -303,6 +293,8 @@ export default {
 			this.messages.push({ role: 'user', content: promptToSend });
 			const userPrompt = promptToSend;
 			this.prompt = '';
+			this.file = null;
+			this.fileName = '';
 
 			// Add placeholder for AI response
 			this.messages.push({ role: 'assistant', content: 'Thinking...' });
