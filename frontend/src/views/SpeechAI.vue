@@ -228,6 +228,7 @@ export default {
 			});
 			try {
 				let aiReply = '';
+				
 				if (this.file) {
 					// If a file is selected, send to /api/read-docx
 					const formData = new FormData();
