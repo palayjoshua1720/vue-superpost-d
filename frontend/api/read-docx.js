@@ -53,20 +53,16 @@ export default async function handler(req, res) {
         let docText = '';
         try {
             if (ext === 'docx') {
-                // Extract text from docx
                 const result = await mammoth.extractRawText({ path: file.filepath });
                 docText = result.value;
             } else if (ext === 'txt' || ext === 'csv') {
-                // Read as plain text
                 docText = fs.readFileSync(file.filepath, 'utf8');
             } else if (ext === 'xls' || ext === 'xlsx') {
-                // Read Excel file and convert to CSV string
                 const workbook = xlsx.readFile(file.filepath);
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 docText = xlsx.utils.sheet_to_csv(sheet);
             } else if (ext === 'pdf') {
-                // Extract text from PDF
                 const dataBuffer = fs.readFileSync(file.filepath);
                 const pdfData = await pdfParse(dataBuffer);
                 docText = pdfData.text;
