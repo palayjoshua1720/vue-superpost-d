@@ -221,8 +221,6 @@ export default {
 			this.messages.push({ role: 'user', content: promptToSend });
 			const userPrompt = promptToSend;
 			this.prompt = '';
-			this.file = null;
-			this.fileName = '';
 			// Add placeholder for AI response
 			this.messages.push({ role: 'assistant', content: 'Thinking...' });
 			this.$nextTick(() => {
@@ -237,6 +235,8 @@ export default {
 					formData.append('prompt', userPrompt);
 					const res = await axios.post('/api/read-docx', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 					aiReply = res.data.aiResponse || res.data.docText || 'No response.';
+					this.file = null;
+					this.fileName = '';
 				} else {
 					// Normal chat
 					const res = await axios.post(
