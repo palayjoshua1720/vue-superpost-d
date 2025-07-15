@@ -2,6 +2,7 @@ const formidable = require('formidable');
 const mammoth = require('mammoth');
 const fs = require('fs');
 const xlsx = require('xlsx');
+const pdfParse = require('pdf-parse');
 
 // Enable CORS and disable default body parser for file uploads
 export const config = {
@@ -64,6 +65,11 @@ export default async function handler(req, res) {
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 docText = xlsx.utils.sheet_to_csv(sheet);
+            } else if (ext === 'pdf') {
+                // Extract text from PDF
+                const dataBuffer = fs.readFileSync(file.filepath);
+                const pdfData = await pdfParse(dataBuffer);
+                docText = pdfData.text;
             } else {
                 return res.status(400).json({ error: 'Unsupported file type' });
             }
