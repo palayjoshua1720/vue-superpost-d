@@ -2,66 +2,82 @@
 	<div class="flex h-[88vh] max-w-5xl mx-auto rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50 via-white to-purple-100 dark:from-gray-900 dark:via-gray-950 dark:to-indigo-900">
 
 		<!-- Sidebar -->
-		<aside class="w-64 min-w-[220px] bg-white/80 dark:bg-gray-900/80 border-r border-gray-200 dark:border-gray-800 flex flex-col p-0 md:p-0">
-			<div class="flex flex-col items-center py-6 px-4 border-b border-gray-200 dark:border-gray-800">
-				<div class="w-14 h-14 rounded-full flex items-center justify-center shadow mb-2
-					bg-gradient-to-br from-blue-400 to-purple-400 dark:from-indigo-900 dark:to-purple-900">
-					<!-- Loader Lightning Bolt Logo with AI Accent -->
-					<svg viewBox="0 0 24 24" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
+		<transition name="sidebar-fade-slide">
+			<div v-if="messages.length">
+				<aside class="w-64 min-w-[220px] bg-white/80 dark:bg-gray-900/80 border-r border-gray-200 dark:border-gray-800 flex flex-col p-0 md:p-0">
+					<div class="flex flex-col items-center py-6 px-4 border-b border-gray-200 dark:border-gray-800">
+						<div class="w-14 h-14 rounded-full flex items-center justify-center shadow mb-2
+							bg-gradient-to-br from-blue-400 to-purple-400 dark:from-indigo-900 dark:to-purple-900">
+							<!-- Loader Lightning Bolt Logo with AI Accent -->
+							<svg viewBox="0 0 24 24" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
 
-						<!-- Background circle (optional if it's in a button/icon) -->
-						<circle cx="12" cy="12" r="12" fill="url(#grad)" />
+								<!-- Background circle (optional if it's in a button/icon) -->
+								<circle cx="12" cy="12" r="12" fill="url(#grad)" />
 
-						<!-- Lightning Bolt: thinner stroke -->
-						<path
-						d="M13 2L3 14h7v8l10-12h-7z"
-						stroke="white"
-						stroke-width="1.8"
-						fill="none"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						/>
+								<!-- Lightning Bolt: thinner stroke -->
+								<path
+								d="M13 2L3 14h7v8l10-12h-7z"
+								stroke="white"
+								stroke-width="1.8"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								/>
 
-						<!-- Blue AI Spark -->
-						<circle cx="17" cy="6" r="1" fill="#A5B4FC" />
+								<!-- Blue AI Spark -->
+								<circle cx="17" cy="6" r="1" fill="#A5B4FC" />
 
-						<!-- Tribute Dot (Paw/Heart) -->
-						<circle cx="6.5" cy="17.5" r="0.8" fill="#F472B6" />
+								<!-- Tribute Dot (Paw/Heart) -->
+								<circle cx="6.5" cy="17.5" r="0.8" fill="#F472B6" />
 
-						<!-- Optional "G" integration as subtle shadow or background -->
-						<path
-						d="M9.5 10a2.5 2.5 0 1 1 2.5 2.5h-1"
-						stroke="rgba(255,255,255,0.3)"
-						stroke-width="1"
-						fill="none"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						/>
+								<!-- Optional "G" integration as subtle shadow or background -->
+								<path
+								d="M9.5 10a2.5 2.5 0 1 1 2.5 2.5h-1"
+								stroke="rgba(255,255,255,0.3)"
+								stroke-width="1"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								/>
 
-						<!-- Gradient for background -->
-						<defs>
-							<radialGradient id="grad" cx="50%" cy="50%" r="50%">
-								<stop offset="0%" stop-color="#6D28D9" />
-								<stop offset="100%" stop-color="#1E1B4B" />
-							</radialGradient>
-						</defs>
-					</svg>
-				</div>
-				<div class="font-bold text-xl text-gray-800 dark:text-gray-100">Gappy</div>
-				<div class="text-xs text-gray-500 dark:text-gray-400">Your AI Assistant</div>
+								<!-- Gradient for background -->
+								<defs>
+									<radialGradient id="grad" cx="50%" cy="50%" r="50%">
+										<stop offset="0%" stop-color="#6D28D9" />
+										<stop offset="100%" stop-color="#1E1B4B" />
+									</radialGradient>
+								</defs>
+							</svg>
+						</div>
+						<div class="font-bold text-xl text-gray-800 dark:text-gray-100">Gappy</div>
+						<div class="text-xs text-gray-500 dark:text-gray-400">Your AI Assistant</div>
+					</div>
+
+					<!-- History section -->
+					<div v-if="history.length" class="">
+						<div class="flex-1 overflow-y-auto px-4 py-6">
+							<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Chats</div>
+							<ul class="space-y-1">
+								<li v-for="(topic, idx) in history" :key="idx" class="bg-blue-50 dark:bg-gray-800 rounded px-3 py-1 text-gray-700 dark:text-gray-200 text-xs truncate cursor-default">
+									{{ topic }}
+								</li>
+							</ul>
+						</div>
+					</div>
+
+					<div class="flex-1 overflow-y-auto px-4 py-6">
+						<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Sample Prompts</div>
+						<ul class="space-y-2">
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">How do I reset my password?</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Tell me a joke</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Summarize this article</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">What's the weather today?</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Give me a productivity tip</li>
+						</ul>
+					</div>
+				</aside>
 			</div>
-
-			<div class="flex-1 overflow-y-auto px-4 py-6">
-				<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Sample Prompts</div>
-				<ul class="space-y-2">
-					<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">How do I reset my password?</li>
-					<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Tell me a joke</li>
-					<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Summarize this article</li>
-					<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">What's the weather today?</li>
-					<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Give me a productivity tip</li>
-				</ul>
-			</div>
-		</aside>
+		</transition>
 
 		<!-- Chat Area -->
 		<main class="flex-1 flex flex-col">
@@ -90,22 +106,74 @@
 
 			<!-- Chat area -->
 			<div class="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-gray-50 dark:bg-gray-900/80 transition-colors duration-300" ref="chatContainer">
-				<div v-for="(msg, i) in messages" :key="i" class="flex items-end group" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
-					<div v-if="msg.role === 'assistant'" class="flex items-end gap-2">
-						<div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center shadow">
-							<svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M8 15s1.5 2 4 2 4-2 4-2" /><path d="M9 9h.01" /><path d="M15 9h.01" /></svg>
+				<div v-if="messages.length">
+					<div v-for="(msg, i) in messages" :key="i" class="flex items-end group" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+						<div v-if="msg.role === 'assistant'" class="flex items-end gap-2">
+							<div class="w-8 h-8 rounded-full flex items-center justify-center shadow mb-2
+							bg-gradient-to-br from-blue-400 to-purple-400 dark:from-indigo-900 dark:to-purple-900">
+								<!-- Loader Lightning Bolt Logo with AI Accent -->
+								<svg viewBox="0 0 24 24" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
+
+									<!-- Background circle (optional if it's in a button/icon) -->
+									<circle cx="12" cy="12" r="12" fill="url(#grad)" />
+
+									<!-- Lightning Bolt: thinner stroke -->
+									<path
+									d="M13 2L3 14h7v8l10-12h-7z"
+									stroke="white"
+									stroke-width="1.8"
+									fill="none"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									/>
+
+									<!-- Blue AI Spark -->
+									<circle cx="17" cy="6" r="1" fill="#A5B4FC" />
+
+									<!-- Tribute Dot (Paw/Heart) -->
+									<circle cx="6.5" cy="17.5" r="0.8" fill="#F472B6" />
+
+									<!-- Optional "G" integration as subtle shadow or background -->
+									<path
+									d="M9.5 10a2.5 2.5 0 1 1 2.5 2.5h-1"
+									stroke="rgba(255,255,255,0.3)"
+									stroke-width="1"
+									fill="none"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									/>
+
+									<!-- Gradient for background -->
+									<defs>
+										<radialGradient id="grad" cx="50%" cy="50%" r="50%">
+											<stop offset="0%" stop-color="#6D28D9" />
+											<stop offset="100%" stop-color="#1E1B4B" />
+										</radialGradient>
+									</defs>
+								</svg>
+							</div>
+							<div class="bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-2xl shadow-md max-w-[75%] animate-fade-in">
+								<span v-html="msg.content.replace(/\n/g, '<br>')"></span>
+							</div>
 						</div>
-						<div class="bg-white/90 dark:bg-gray-800/90 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-2xl shadow-md max-w-[75%] animate-fade-in">
-							<span v-html="msg.content.replace(/\n/g, '<br>')"></span>
+						<div v-else class="flex items-end gap-2 flex-row-reverse">
+							<div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 dark:from-blue-800 dark:to-purple-800 flex items-center justify-center shadow">
+								<div>
+									<span class="sr-only">Open user menu</span>
+									<div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white">
+										{{ userInitials }}
+									</div>
+								</div>
+							</div>
+							<div class="bg-blue-600/90 dark:bg-blue-700/90 text-white px-4 py-2 rounded-2xl shadow-md max-w-[75%] animate-fade-in">
+								<span v-html="formatUserMessage(msg.content)"></span>
+							</div>
 						</div>
 					</div>
-					<div v-else class="flex items-end gap-2 flex-row-reverse">
-						<div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 dark:from-blue-800 dark:to-purple-800 flex items-center justify-center shadow">
-							<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" /><path d="M6 20v-2c0-2.21 3.58-4 8-4s8 1.79 8 4v2" /></svg>
-						</div>
-						<div class="bg-blue-600/90 dark:bg-blue-700/90 text-white px-4 py-2 rounded-2xl shadow-md max-w-[75%] animate-fade-in">
-							<span v-html="formatUserMessage(msg.content)"></span>
-						</div>
+				</div>
+				<div v-else class="flex items-center justify-center h-full w-full">
+					<div class="text-gray-400 text-center text-lg font-medium select-none">
+						Please enter your prompt below to start the conversation.
 					</div>
 				</div>
 			</div>
@@ -119,6 +187,11 @@
 					placeholder="Type your message..."
 					autocomplete="off"
 				/>
+
+				<button type="submit" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
+				</button>
+
 				<!-- File upload input -->
 				<label class="flex items-center cursor-pointer ml-2">
 					<input type="file" accept=".docx,.txt,.csv,.xls,.xlsx,.pdf" class="hidden" @change="onFileChange" />
@@ -132,9 +205,7 @@
 						<button type="button" class="remove-btn" @click="removeFile">&times;</button>
 					</span>
 				</span>
-				<button type="submit" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
-					<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
-				</button>
+
 				<button type="button" @click="startListening" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-300 shadow hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors" :disabled="listening">
 					<svg v-if="!listening" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18v-6m0 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 0v6m0 0a6 6 0 0 0 6-6" /></svg>
 					<svg v-else class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18v-6m0 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 0v6m0 0a6 6 0 0 0 6-6" /></svg>
@@ -146,8 +217,13 @@
 
 <script>
 import axios from 'axios';
+import { useUser } from '@/composables/auth/useUser';
 
 export default {
+	setup() {
+		const { userInitials } = useUser();
+		return { userInitials };
+  	},
 	data() {
 		return {
 			prompt: '',
@@ -156,6 +232,7 @@ export default {
 			messages: [],
 			file: null,
 			fileName: '',
+			history: [],
 		};
 	},
 	mounted() {
@@ -239,7 +316,7 @@ export default {
 						.map(m => ({
 						role: m.role === 'assistant' ? 'assistant' : 'user',
 						content: m.content,
-						})),
+					})),
 					],
 					max_tokens: 800,
 				}
@@ -248,6 +325,27 @@ export default {
 			}
 			// Replace the last "Thinking..." message with the real response
 			this.messages.splice(this.messages.length - 1, 1, { role: 'assistant', content: aiReply });
+
+			// --- Topic summary logic ---
+			if (this.messages.length === 2) { // Only after first AI response
+				const summaryPrompt = `Summarize the main topic of the following conversation in 5 words or less:\n\n${aiReply}`;
+				const summaryRes = await axios.post(
+					'/api/chat',
+					{
+						model: 'openai/gpt-4o',
+						messages: [
+							{ role: 'system', content: 'You are a helpful assistant that summarizes topics.' },
+							{ role: 'user', content: summaryPrompt }
+						],
+						max_tokens: 20,
+					}
+				);
+				const topic = summaryRes.data.choices[0].message.content.trim();
+				if (topic && !this.history.includes(topic)) {
+					this.history.unshift(topic);
+				}
+			}
+			// --- End topic summary logic ---
 
 			// Speak the AI reply
 			const utterance = new SpeechSynthesisUtterance(aiReply);
@@ -292,6 +390,16 @@ export default {
 }
 .animate-fade-in {
 	animation: fade-in 0.3s ease;
+}
+@keyframes sidebar-fade-slide {
+	from { opacity: 0; transform: translateX(-30px); }
+	to { opacity: 1; transform: translateX(0); }
+}
+.sidebar-fade-slide-enter-active {
+	animation: sidebar-fade-slide 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.sidebar-fade-slide-leave-active {
+	animation: sidebar-fade-slide 0.3s reverse cubic-bezier(0.4,0,0.2,1);
 }
 .file-chip {
 	display: inline-flex;

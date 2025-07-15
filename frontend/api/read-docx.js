@@ -71,15 +71,22 @@ export default async function handler(req, res) {
             }
 
             // Compose the AI prompt
-            const aiPrompt = `
-                You are a helpful assistant. The user uploaded a document. Here is the content:
+            let aiPrompt = '';
 
-                ${docText.slice(0, 8000)}
+            if (prompt && prompt.trim().length > 2) {
+                aiPrompt = `
+                    You are a helpful assistant. The user uploaded a document. Here is the content:
 
-                User question: ${prompt}
+                    ${docText.slice(0, 8000)}
 
-                Answer in detail:
-            `.trim();
+                    User question: ${prompt}
+
+                    Answer in detail:
+                `.trim();
+            } else {
+                // Optional: handle empty or "test"-only prompts gracefully
+                aiPrompt = `The user uploaded a document but did not ask a clear question. Awaiting user prompt.`;
+            }
 
             // Prepare OpenRouter API request body
             const body = {

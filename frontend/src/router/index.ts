@@ -83,8 +83,8 @@ const routes: RouteRecordRaw[] = [
 				}
 			},
 			{
-				path: 'text-to-speech',
-				name: 'text-to-speech',
+				path: 'gappy',
+				name: 'gappy',
 				component: SpeechAI,
 				meta: {
 					requiresAuth: true,
