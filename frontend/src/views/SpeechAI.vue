@@ -54,18 +54,32 @@
 					</div>
 
 					<!-- History section -->
-					<div v-if="history.length" class="">
-						<div class="flex-1 overflow-y-auto px-4 py-6">
+					<div v-if="history.length || loading || historyError" class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 min-h-[60px] flex flex-col justify-center">
+						<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">History</div>
+						<div v-if="loading" class="flex items-center justify-center py-2">
+							<span class="loader"></span>
+						</div>
+						<ul v-else-if="history.length" class="space-y-1">
+							<li v-for="(topic, idx) in history" :key="idx" class="bg-blue-50 dark:bg-gray-800 rounded px-3 py-1 text-gray-700 dark:text-gray-200 text-xs truncate cursor-default">
+								{{ topic }}
+							</li>
+						</ul>
+						<div v-else class="text-gray-400 text-xs text-center py-2">
+							{{ historyError ? historyError : 'No topics yet.' }}
+						</div>
+					</div>
+					<div v-else>
+						<div class="flex-1 overflow-y-auto px-4 py-3">
 							<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Chats</div>
 							<ul class="space-y-1">
-								<li v-for="(topic, idx) in history" :key="idx" class="bg-blue-50 dark:bg-gray-800 rounded px-3 py-1 text-gray-700 dark:text-gray-200 text-xs truncate cursor-default">
-									{{ topic }}
+								<li class="bg-blue-50 dark:bg-gray-800 rounded px-3 py-1 text-gray-700 dark:text-gray-200 text-xs truncate cursor-default">
+									Erorr message here
 								</li>
 							</ul>
 						</div>
 					</div>
 
-					<div class="flex-1 overflow-y-auto px-4 py-6">
+					<div class="flex-1 overflow-y-auto px-4 py-3">
 						<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Sample Prompts</div>
 						<ul class="space-y-2">
 							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">How do I reset my password?</li>
@@ -170,6 +184,9 @@
 							</div>
 						</div>
 					</div>
+					<div v-if="loading" class="flex items-center justify-center py-4">
+						<span class="loader"></span>
+					</div>
 				</div>
 				<div v-else class="flex items-center justify-center h-full w-full">
 					<div class="text-gray-400 text-center text-lg font-medium select-none">
@@ -233,6 +250,8 @@ export default {
 			file: null,
 			fileName: '',
 			history: [],
+			loading: false,
+			historyError: '', // <-- Add error state for history
 		};
 	},
 	mounted() {
@@ -288,6 +307,9 @@ export default {
 			// Add placeholder for AI response
 			this.messages.push({ role: 'assistant', content: 'Thinking...' });
 
+			this.loading = true;
+			this.historyError = '';
+
 			this.$nextTick(() => {
 				this.scrollToBottom();
 			});
@@ -328,21 +350,26 @@ export default {
 
 			// --- Topic summary logic ---
 			if (this.messages.length === 2) { // Only after first AI response
-				const summaryPrompt = `Summarize the main topic of the following conversation in 5 words or less:\n\n${aiReply}`;
-				const summaryRes = await axios.post(
-					'/api/chat',
-					{
-						model: 'openai/gpt-4o',
-						messages: [
-							{ role: 'system', content: 'You are a helpful assistant that summarizes topics.' },
-							{ role: 'user', content: summaryPrompt }
-						],
-						max_tokens: 20,
+				try {
+					const summaryPrompt = `Summarize the main topic of the following conversation in 5 words or less:\n\n${aiReply}`;
+					const summaryRes = await axios.post(
+						'/api/chat',
+						{
+							model: 'openai/gpt-4o',
+							messages: [
+								{ role: 'system', content: 'You are a helpful assistant that summarizes topics.' },
+								{ role: 'user', content: summaryPrompt }
+							],
+							max_tokens: 20,
+						}
+					);
+					const topic = summaryRes.data.choices[0].message.content.trim();
+					if (topic && !this.history.includes(topic)) {
+						this.history.unshift(topic);
 					}
-				);
-				const topic = summaryRes.data.choices[0].message.content.trim();
-				if (topic && !this.history.includes(topic)) {
-					this.history.unshift(topic);
+					this.historyError = '';
+				} catch (err) {
+					this.historyError = 'Failed to summarize topic.';
 				}
 			}
 			// --- End topic summary logic ---
@@ -363,6 +390,7 @@ export default {
 			} catch (error) {
 				this.messages.splice(this.messages.length - 1, 1, { role: 'assistant', content: 'Something went wrong.' });
 			}
+			this.loading = false;
 			this.$nextTick(() => {
 				this.scrollToBottom();
 			});
@@ -432,5 +460,17 @@ export default {
 }
 .file-chip .remove-btn:hover {
 	opacity: 1;
+}
+.loader {
+	display: inline-block;
+	width: 28px;
+	height: 28px;
+	border: 3px solid #3b82f6;
+	border-radius: 50%;
+	border-top-color: transparent;
+	animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+	to { transform: rotate(360deg); }
 }
 </style>
