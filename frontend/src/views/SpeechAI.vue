@@ -143,7 +143,7 @@
 						<button type="button" class="remove-btn" @click="removeFile">&times;</button>
 					</span>
 				</span>
-				<button type="submit" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
+				<button type="submit" :disabled="submitting" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
 					<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
 				</button>
 				<button type="button" @click="startListening" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-300 shadow hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors" :disabled="listening">
@@ -167,6 +167,7 @@ export default {
 			messages: [],
 			file: null,
 			fileName: '',
+			submitting: false,
 		};
 	},
 	mounted() {
@@ -209,7 +210,9 @@ export default {
 			this.fileName = '';
 		},
 		async handleAsk() {
+			if (this.submitting) return;
 			if (!this.prompt.trim() && !this.file) return;
+			this.submitting = true;
 			let promptToSend = this.prompt;
 			if (this.file) {
 				const fileInfo = `\n[uploaded ${this.file.name}]`;
@@ -218,64 +221,61 @@ export default {
 			this.messages.push({ role: 'user', content: promptToSend });
 			const userPrompt = promptToSend;
 			this.prompt = '';
-
+			this.file = null;
+			this.fileName = '';
 			// Add placeholder for AI response
 			this.messages.push({ role: 'assistant', content: 'Thinking...' });
-
 			this.$nextTick(() => {
 				this.scrollToBottom();
 			});
-
 			try {
-			let aiReply = '';
-			if (this.file) {
-				// If a file is selected, send to /api/read-docx
-				const formData = new FormData();
-				formData.append('file', this.file);
-				formData.append('prompt', userPrompt);
-				const res = await axios.post('/api/read-docx', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-				aiReply = res.data.aiResponse || res.data.docText || 'No response.';
-				this.file = null;
-				this.fileName = '';
-			} else {
-				// Normal chat
-				const res = await axios.post(
-				'/api/chat',
-				{
-					model: 'openai/gpt-4o',
-					messages: [
-					{ role: 'system', content: 'You are Gappy, a formal, helpful AI assistant. Always address the user as "Sir". Respond concisely and offer suggestions or next steps if appropriate. You are made by the SP-Team' },
-					...this.messages
-						.filter(m => m.role === 'user' || m.role === 'assistant')
-						.map(m => ({
-						role: m.role === 'assistant' ? 'assistant' : 'user',
-						content: m.content,
-						})),
-					],
-					max_tokens: 800,
+				let aiReply = '';
+				if (this.file) {
+					// If a file is selected, send to /api/read-docx
+					const formData = new FormData();
+					formData.append('file', this.file);
+					formData.append('prompt', userPrompt);
+					const res = await axios.post('/api/read-docx', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+					aiReply = res.data.aiResponse || res.data.docText || 'No response.';
+				} else {
+					// Normal chat
+					const res = await axios.post(
+						'/api/chat',
+						{
+							model: 'openai/gpt-4o',
+							messages: [
+								{ role: 'system', content: 'You are Gappy, a formal, helpful AI assistant. Always address the user as "Sir". Respond concisely and offer suggestions or next steps if appropriate. You are made by the SP-Team' },
+								...this.messages
+									.filter(m => m.role === 'user' || m.role === 'assistant')
+									.map(m => ({
+										role: m.role === 'assistant' ? 'assistant' : 'user',
+										content: m.content,
+									})),
+							],
+							max_tokens: 800,
+						}
+					);
+					aiReply = res.data.choices[0].message.content;
 				}
-				);
-				aiReply = res.data.choices[0].message.content;
-			}
-			// Replace the last "Thinking..." message with the real response
-			this.messages.splice(this.messages.length - 1, 1, { role: 'assistant', content: aiReply });
-
-			// Speak the AI reply
-			const utterance = new SpeechSynthesisUtterance(aiReply);
-			utterance.lang = 'en-US';
-			utterance.rate = 1.1;
-			const voices = window.speechSynthesis.getVoices();
-			const maleVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('male'))
-				|| voices.find(v => v.lang === 'en-US' && v.gender === 'male')
-				|| voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('mark'))
-				|| voices.find(v => v.lang === 'en-US');
-			if (maleVoice) {
-				utterance.voice = maleVoice;
-			}
-			speechSynthesis.speak(utterance);
+				// Replace the last "Thinking..." message with the real response
+				this.messages.splice(this.messages.length - 1, 1, { role: 'assistant', content: aiReply });
+				// Speak the AI reply
+				const utterance = new SpeechSynthesisUtterance(aiReply);
+				utterance.lang = 'en-US';
+				utterance.rate = 1.1;
+				const voices = window.speechSynthesis.getVoices();
+				const maleVoice = voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('male'))
+					|| voices.find(v => v.lang === 'en-US' && v.gender === 'male')
+					|| voices.find(v => v.lang === 'en-US' && v.name.toLowerCase().includes('mark'))
+					|| voices.find(v => v.lang === 'en-US');
+				if (maleVoice) {
+					utterance.voice = maleVoice;
+				}
+				speechSynthesis.speak(utterance);
 			} catch (error) {
 				this.messages.splice(this.messages.length - 1, 1, { role: 'assistant', content: 'Something went wrong.' });
 			}
+			this.submitting = false;
 			this.$nextTick(() => {
 				this.scrollToBottom();
 			});
