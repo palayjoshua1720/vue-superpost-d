@@ -114,6 +114,14 @@
           placeholder="Type your message..."
           autocomplete="off"
         />
+        <!-- File upload input -->
+        <label class="flex items-center cursor-pointer ml-2">
+          <input type="file" accept=".docx" class="hidden" @change="onFileChange" />
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-300 shadow hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </span>
+        </label>
+        <span v-if="fileName" class="ml-2 text-xs text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{{ fileName }}</span>
         <button type="submit" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
         </button>
@@ -136,6 +144,8 @@ export default {
       listening: false,
       recognition: null,
       messages: [],
+      file: null,
+      fileName: '',
     };
   },
   mounted() {
@@ -168,6 +178,11 @@ export default {
         this.recognition.start();
       }
     },
+    onFileChange(e) {
+      const f = e.target.files[0];
+      this.file = f;
+      this.fileName = f ? f.name : '';
+    },
     async handleAsk() {
       if (!this.prompt.trim()) return;
       this.messages.push({ role: 'user', content: this.prompt });
@@ -182,24 +197,36 @@ export default {
       });
 
       try {
-        const res = await axios.post(
-          '/api/chat',
-          {
-            model: 'openai/gpt-4o',
-            messages: [
-              { role: 'system', content: 'You are Gappy, a formal, helpful AI assistant. Always address the user as "Sir". Respond concisely and offer suggestions or next steps if appropriate.' },
-              ...this.messages
-                .filter(m => m.role === 'user' || m.role === 'assistant')
-                .map(m => ({
-                  role: m.role === 'assistant' ? 'assistant' : 'user',
-                  content: m.content,
-                })),
-            ],
-            max_tokens: 800,
-          }
-        );
-
-        const aiReply = res.data.choices[0].message.content;
+        let aiReply = '';
+        if (this.file) {
+          // If a file is selected, send to /api/read-docx
+          const formData = new FormData();
+          formData.append('file', this.file);
+          formData.append('prompt', userPrompt);
+          const res = await axios.post('/api/read-docx', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          aiReply = res.data.aiResponse || res.data.docText || 'No response.';
+          this.file = null;
+          this.fileName = '';
+        } else {
+          // Normal chat
+          const res = await axios.post(
+            '/api/chat',
+            {
+              model: 'openai/gpt-4o',
+              messages: [
+                { role: 'system', content: 'You are Gappy, a formal, helpful AI assistant. Always address the user as "Sir". Respond concisely and offer suggestions or next steps if appropriate.' },
+                ...this.messages
+                  .filter(m => m.role === 'user' || m.role === 'assistant')
+                  .map(m => ({
+                    role: m.role === 'assistant' ? 'assistant' : 'user',
+                    content: m.content,
+                  })),
+              ],
+              max_tokens: 800,
+            }
+          );
+          aiReply = res.data.choices[0].message.content;
+        }
         // Replace the last "Thinking..." message with the real response
         this.messages.splice(this.messages.length - 1, 1, { role: 'assistant', content: aiReply });
 
