@@ -33,14 +33,14 @@
 		</div>
 	
 	<template v-else>
-		<div class="flex gap-4 mb-8">
+    <div class="flex gap-4 mb-8">
 			<input v-model="search" @keyup.enter="handleSearch" class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search music..." />
 			<button @click="handleSearch" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">Search</button>
-		</div>
+    </div>
 
-		<div v-if="searchResults.length" class="mb-10">
-			<h2 class="text-xl font-semibold mb-4">Search Results</h2>
-			<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+    <div v-if="searchResults.length" class="mb-10">
+      <h2 class="text-xl font-semibold mb-4">Search Results</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
 			<div v-for="track in searchResults" :key="track.id" class="bg-white rounded-lg shadow p-4 flex flex-col items-center hover:shadow-lg transition cursor-pointer relative group" @click="openTrackModal(track)">
 				<img :src="getArtworkUrl(track.artwork)" class="w-28 h-28 object-cover rounded mb-2" />
 				<button @click.stop="playTrack(track)" class="absolute top-2 right-2 bg-green-600 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
@@ -48,13 +48,13 @@
 				</button>
 				<div class="font-bold text-sm text-gray-800 text-center w-full truncate">{{ track.title }}</div>
 				<div class="text-xs text-gray-600 text-center w-full truncate">{{ track.user?.name || track.user?.handle }}</div>
-			</div>
-			</div>
-		</div>
+        </div>
+      </div>
+    </div>
 
-		<div v-else>
+    <div v-else>
 			<h2 class="text-xl font-semibold mb-4 ">Trending Tracks</h2>
-			<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-10">
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-10">
 			<div v-for="track in trendingTracks" :key="track.id" class="bg-white rounded-lg shadow p-4 flex flex-col items-center hover:shadow-lg transition cursor-pointer relative group" @click="openTrackModal(track)">
 				<img :src="getArtworkUrl(track.artwork)" class="w-28 h-28 object-cover rounded mb-2" />
 				<button @click.stop="playTrack(track)" class="absolute top-2 right-2 bg-green-600 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
@@ -62,26 +62,26 @@
 				</button>
 				<div class="font-bold text-sm text-gray-800 text-center w-full truncate">{{ track.title }}</div>
 				<div class="text-xs text-gray-600 text-center w-full truncate">{{ track.user?.name || track.user?.handle }}</div>
-			</div>
-			</div>
+        </div>
+      </div>
 
 			<h2 class="text-xl font-semibold mb-4 ">Trending Playlists</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 			<div v-for="playlist in trendingPlaylists" :key="playlist.id" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition cursor-pointer" @click="openPlaylistModal(playlist)">
-				<div class="flex items-center gap-4 mb-3">
+          <div class="flex items-center gap-4 mb-3">
 				<img :src="getArtworkUrl(playlist.artwork)" class="w-16 h-16 object-cover rounded" />
 				<div class="flex-1 min-w-0">
 					<div class="font-bold text-lg text-gray-800 truncate">{{ playlist.title }}</div>
 					<div class="text-xs text-gray-600 truncate">by {{ playlist.user?.name || playlist.user?.handle }}</div>
-				</div>
-				</div>
-				<div class="text-sm text-gray-700 mb-2 line-clamp-2">{{ playlist.description }}</div>
-				<div class="flex flex-wrap gap-2">
-				<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">{{ playlist.track_count }} tracks</span>
-				</div>
-			</div>
-			</div>
-		</div>
+            </div>
+          </div>
+          <div class="text-sm text-gray-700 mb-2 line-clamp-2">{{ playlist.description }}</div>
+          <div class="flex flex-wrap gap-2">
+            <span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">{{ playlist.track_count }} tracks</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
 		<div v-if="currentTrack" class="fixed bottom-0 left-0 right-0 flex justify-center z-50">
 			<div class="player-container relative w-full max-w-2xl mx-auto bg-gray-900 text-white rounded-2xl shadow-2xl flex flex-col gap-2 px-6 py-4">
@@ -193,11 +193,11 @@
 							</button>
 						</div>
 					</div>
-				</div>
-			</div>
+      </div>
+    </div>
 		</div>
 	</template>
-	</div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -257,14 +257,14 @@ function getStreamUrl(track: any): string {
 const loadTrending = async () => {
 	loading.value = true;
 	trendingTracks.value = await fetchTrendingTracks(selectedGenre.value);
-	trendingPlaylists.value = await fetchTrendingPlaylists();
+  trendingPlaylists.value = await fetchTrendingPlaylists();
 	loading.value = false;
 };
 
 const handleSearch = async () => {
-	if (!search.value.trim()) return;
+  if (!search.value.trim()) return;
 	loading.value = true;
-	searchResults.value = await searchTracks(search.value.trim());
+  searchResults.value = await searchTracks(search.value.trim());
 	loading.value = false;
 };
 
@@ -279,13 +279,13 @@ async function handleGenreChange() {
 }
 
 const playTrack = (track: AudiusTrack) => {
-	currentTrack.value = track;
+  currentTrack.value = track;
 	playerLoading.value = true;
-	setTimeout(() => {
+  setTimeout(() => {
 		audioRef.value?.play().catch(() => {
 			// ignore play error (autoplay policy, etc)
 		});
-	}, 100);
+  }, 100);
 };
 
 function openTrackModal(track: AudiusTrack) {
@@ -345,11 +345,11 @@ function onAudioError(e: Event) {
 
 // Dynamically update --progress CSS variable for the progress bar
 watch([currentTime, duration], async () => {
-  await nextTick();
-  const input = document.querySelector('.player-progress') as HTMLInputElement;
-  if (input && duration.value) {
-    input.style.setProperty('--progress', `${(currentTime.value / duration.value) * 100}%`);
-  }
+	await nextTick();
+	const input = document.querySelector('.player-progress') as HTMLInputElement;
+	if (input && duration.value) {
+		input.style.setProperty('--progress', `${(currentTime.value / duration.value) * 100}%`);
+	}
 });
 
 onMounted(() => {
