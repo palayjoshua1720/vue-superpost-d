@@ -2,68 +2,70 @@
 	<div class="flex h-[88vh] max-w-5xl mx-auto rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-blue-50 via-white to-purple-100 dark:from-gray-900 dark:via-gray-950 dark:to-indigo-900">
 
 		<!-- Sidebar -->
-		<div v-if="messages.length">
-			<aside class="w-64 min-w-[220px] bg-white/80 dark:bg-gray-900/80 border-r border-gray-200 dark:border-gray-800 flex flex-col p-0 md:p-0">
-				<div class="flex flex-col items-center py-6 px-4 border-b border-gray-200 dark:border-gray-800">
-					<div class="w-14 h-14 rounded-full flex items-center justify-center shadow mb-2
-						bg-gradient-to-br from-blue-400 to-purple-400 dark:from-indigo-900 dark:to-purple-900">
-						<!-- Loader Lightning Bolt Logo with AI Accent -->
-						<svg viewBox="0 0 24 24" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
+		<transition name="fade-in">
+			<div v-if="messages.length">
+				<aside class="w-64 min-w-[220px] bg-white/80 dark:bg-gray-900/80 border-r border-gray-200 dark:border-gray-800 flex flex-col p-0 md:p-0">
+					<div class="flex flex-col items-center py-6 px-4 border-b border-gray-200 dark:border-gray-800">
+						<div class="w-14 h-14 rounded-full flex items-center justify-center shadow mb-2
+							bg-gradient-to-br from-blue-400 to-purple-400 dark:from-indigo-900 dark:to-purple-900">
+							<!-- Loader Lightning Bolt Logo with AI Accent -->
+							<svg viewBox="0 0 24 24" class="w-10 h-10" xmlns="http://www.w3.org/2000/svg">
 
-							<!-- Background circle (optional if it's in a button/icon) -->
-							<circle cx="12" cy="12" r="12" fill="url(#grad)" />
+								<!-- Background circle (optional if it's in a button/icon) -->
+								<circle cx="12" cy="12" r="12" fill="url(#grad)" />
 
-							<!-- Lightning Bolt: thinner stroke -->
-							<path
-							d="M13 2L3 14h7v8l10-12h-7z"
-							stroke="white"
-							stroke-width="1.8"
-							fill="none"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							/>
+								<!-- Lightning Bolt: thinner stroke -->
+								<path
+								d="M13 2L3 14h7v8l10-12h-7z"
+								stroke="white"
+								stroke-width="1.8"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								/>
 
-							<!-- Blue AI Spark -->
-							<circle cx="17" cy="6" r="1" fill="#A5B4FC" />
+								<!-- Blue AI Spark -->
+								<circle cx="17" cy="6" r="1" fill="#A5B4FC" />
 
-							<!-- Tribute Dot (Paw/Heart) -->
-							<circle cx="6.5" cy="17.5" r="0.8" fill="#F472B6" />
+								<!-- Tribute Dot (Paw/Heart) -->
+								<circle cx="6.5" cy="17.5" r="0.8" fill="#F472B6" />
 
-							<!-- Optional "G" integration as subtle shadow or background -->
-							<path
-							d="M9.5 10a2.5 2.5 0 1 1 2.5 2.5h-1"
-							stroke="rgba(255,255,255,0.3)"
-							stroke-width="1"
-							fill="none"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							/>
+								<!-- Optional "G" integration as subtle shadow or background -->
+								<path
+								d="M9.5 10a2.5 2.5 0 1 1 2.5 2.5h-1"
+								stroke="rgba(255,255,255,0.3)"
+								stroke-width="1"
+								fill="none"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								/>
 
-							<!-- Gradient for background -->
-							<defs>
-								<radialGradient id="grad" cx="50%" cy="50%" r="50%">
-									<stop offset="0%" stop-color="#6D28D9" />
-									<stop offset="100%" stop-color="#1E1B4B" />
-								</radialGradient>
-							</defs>
-						</svg>
+								<!-- Gradient for background -->
+								<defs>
+									<radialGradient id="grad" cx="50%" cy="50%" r="50%">
+										<stop offset="0%" stop-color="#6D28D9" />
+										<stop offset="100%" stop-color="#1E1B4B" />
+									</radialGradient>
+								</defs>
+							</svg>
+						</div>
+						<div class="font-bold text-xl text-gray-800 dark:text-gray-100">Gappy</div>
+						<div class="text-xs text-gray-500 dark:text-gray-400">Your AI Assistant</div>
 					</div>
-					<div class="font-bold text-xl text-gray-800 dark:text-gray-100">Gappy</div>
-					<div class="text-xs text-gray-500 dark:text-gray-400">Your AI Assistant</div>
-				</div>
 
-				<div class="flex-1 overflow-y-auto px-4 py-6">
-					<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Sample Prompts</div>
-					<ul class="space-y-2">
-						<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">How do I reset my password?</li>
-						<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Tell me a joke</li>
-						<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Summarize this article</li>
-						<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">What's the weather today?</li>
-						<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Give me a productivity tip</li>
-					</ul>
-				</div>
-			</aside>
-		</div>
+					<div class="flex-1 overflow-y-auto px-4 py-6">
+						<div class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">Sample Prompts</div>
+						<ul class="space-y-2">
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">How do I reset my password?</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Tell me a joke</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Summarize this article</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">What's the weather today?</li>
+							<li class="bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 cursor-pointer text-gray-700 dark:text-gray-200 transition">Give me a productivity tip</li>
+						</ul>
+					</div>
+				</aside>
+			</div>
+		</transition>
 
 		<!-- Chat Area -->
 		<main class="flex-1 flex flex-col">
@@ -301,6 +303,17 @@ export default {
 }
 .animate-fade-in {
 	animation: fade-in 0.3s ease;
+}
+.fade-in-enter-active, .fade-in-leave-active {
+	transition: opacity 0.3s, transform 0.3s;
+}
+.fade-in-enter-from, .fade-in-leave-to {
+	opacity: 0;
+	transform: translateY(10px);
+}
+.fade-in-enter-to, .fade-in-leave-from {
+	opacity: 1;
+	transform: translateY(0);
 }
 .file-chip {
 	display: inline-flex;
