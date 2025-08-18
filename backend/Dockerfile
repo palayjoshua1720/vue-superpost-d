@@ -16,11 +16,14 @@ RUN apt-get update && apt-get install -y \
 # Install Composer (latest)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy existing app code
-COPY . .
+# Copy only composer files first (for better caching)
+COPY backend/composer.json backend/composer.lock ./
 
-# Install PHP dependencies with Composer
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Copy the rest of the application code
+COPY backend/ .
 
 # Set permissions for Laravel storage and bootstrap
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
@@ -29,4 +32,4 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 EXPOSE 8000
 
 # Start Laravel with PHP's built-in server
-CMD php artisan serve --host=0.0.0.0 --port=8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
