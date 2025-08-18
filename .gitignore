@@ -142,3 +142,5 @@ frontend/.cache/
 # Ngrok
 ngrok.js
 ngrok/
+
+# Backend Migrations
