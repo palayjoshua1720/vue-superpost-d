@@ -11,7 +11,7 @@ import MovieView from '@/views/MovieView.vue'
 import MangaView from '@/views/MangaView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
-import RequiemView from '@/views/RequiemView.vue'
+import RequiemPulseView from '@/views/RequiemPulseView.vue'
 import HomeIcon from '@/components/icons/HomeIcon.vue'
 import AboutIcon from '@/components/icons/AboutIcon.vue'
 import ProfileIcon from '@/components/icons/ProfileIcon.vue'
@@ -123,12 +123,12 @@ const routes: RouteRecordRaw[] = [
 				}
 			},
 			{
-				path: 'requiem',
-				name: 'requiem',
-				component: RequiemView,
+				path: 'requiem-pulse',
+				name: 'requiem-pulse',
+				component: RequiemPulseView,
 				meta: {
 					requiresAuth: true,
-					title: 'Requiem',
+					title: 'Requiem Pulse',
 					icon: RequiemIcon
 				}
 			},

@@ -106,8 +106,8 @@
 							</div>
 						</div>
 						<div v-else class="flex items-end gap-2 flex-row-reverse">
-							<div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 dark:from-blue-800 dark:to-purple-800 flex items-center justify-center shadow">
-								<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" /><path d="M6 20v-2c0-2.21 3.58-4 8-4s8 1.79 8 4v2" /></svg>
+							<div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white">
+								{{ userInitials }}
 							</div>
 							<div class="bg-blue-600/90 dark:bg-blue-700/90 text-white px-4 py-2 rounded-2xl shadow-md max-w-[75%] animate-fade-in">
 								<span v-html="formatUserMessage(msg.content)"></span>
@@ -124,6 +124,21 @@
 
 			<!-- Prompt input at the bottom -->
 			<form @submit.prevent="handleAsk" class="flex items-center gap-2 px-4 py-3 bg-white/80 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-700">
+				
+				<!-- File upload input -->
+				<label class="flex items-center cursor-pointer">
+					<input type="file" accept=".docx,.txt,.csv,.xls,.xlsx,.pdf" class="hidden" @change="onFileChange" />
+					<span class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-300 shadow hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
+						<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+					</span>
+				</label>
+				<span v-if="fileName" class="">
+					<span class="file-chip">
+						{{ fileName }}
+						<button type="button" class="remove-btn" @click="removeFile">&times;</button>
+					</span>
+				</span>
+
 				<input
 					v-model="prompt"
 					@keyup.enter="handleAsk"
@@ -131,22 +146,11 @@
 					placeholder="Type your message..."
 					autocomplete="off"
 				/>
-				<!-- File upload input -->
-				<label class="flex items-center cursor-pointer ml-2">
-					<input type="file" accept=".docx,.txt,.csv,.xls,.xlsx,.pdf" class="hidden" @change="onFileChange" />
-					<span class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-300 shadow hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors">
-						<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-					</span>
-				</label>
-				<span v-if="fileName" class="ml-2">
-					<span class="file-chip">
-						{{ fileName }}
-						<button type="button" class="remove-btn" @click="removeFile">&times;</button>
-					</span>
-				</span>
+				
 				<button type="submit" :disabled="submitting" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-indigo-800 dark:to-purple-800 text-white shadow hover:scale-105 transition-transform">
 					<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
 				</button>
+
 				<button type="button" @click="startListening" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-300 shadow hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors" :disabled="listening">
 					<svg v-if="!listening" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18v-6m0 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 0v6m0 0a6 6 0 0 0 6-6" /></svg>
 					<svg v-else class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18v-6m0 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm0 0v6m0 0a6 6 0 0 0 6-6" /></svg>
@@ -158,8 +162,13 @@
 
 <script>
 import axios from 'axios';
+import { useUser } from '@/composables/auth/useUser'
 
 export default {
+	setup() {
+		const { userInitials } = useUser();
+		return { userInitials };
+	},
 	data() {
 		return {
 			prompt: '',
@@ -291,7 +300,7 @@ export default {
 		formatUserMessage(content) {
 			// Replace [uploaded filename] with a styled chip (with icon)
 			return content.replace(/\[uploaded ([^\]]+)]/g, (match, filename) => {
-				return `<span class='file-chip' style="display: inline-flex;align-items: center;background: linear-gradient(90deg, #3b82f6 60%, #6366f1 100%);color: #fff;border-radius: 9999px;padding: 0.3rem 1rem 0.3rem 0.7rem;font-size: 0.97em;margin-top: 0.5rem;margin-bottom: 0.5rem;box-shadow: 0 2px 8px rgba(59,130,246,0.10);font-weight: 500;gap: 0.4em;transition: background 0.2s;"><svg class='w-4 h-4 mr-1 inline' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>${filename}</span>`;
+				return `<span class='file-chip' style="display: inline-flex;align-items: center;background: linear-gradient(to right, #3b82f6 20%, #6366f1 100%);color: #fff;border-radius: 9999px;padding: 0.3rem 1rem 0.3rem 0.7rem;font-size: 0.97em;margin-top: 0.5rem;margin-bottom: 0.5rem;box-shadow: 0 2px 8px rgba(59,130,246,0.10);font-weight: 500;gap: 0.4em;transition: background 0.2s;"><svg class='w-4 h-4 mr-1 inline' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/><polyline points='14 2 14 8 20 8'/></svg>${filename}</span>`;
 			});
 		},
 	},

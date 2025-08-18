@@ -1,35 +1,52 @@
 // types/music.ts
 
-export interface AudiusUser {
+export interface SpotifyImage {
+    url: string;
+    height: number | null;
+    width: number | null;
+}
+
+export interface SpotifyUser {
     id: string;
-    handle: string;
+    display_name: string;
+    href: string;
+    external_urls: {
+        spotify: string;
+    };
+    images?: SpotifyImage[]; // Profile pictures
+}
+
+export interface SpotifyTrack {
+    id: string;
     name: string;
-    profile_picture: string | null;
-    cover_photo: string | null;
-    is_verified: boolean;
+    duration_ms: number;
+    album: {
+        id: string;
+        name: string;
+        images: SpotifyImage[];
+        release_date: string;
+    };
+    artists: {
+        id: string;
+        name: string;
+        external_urls: { spotify: string };
+    }[];
+    preview_url: string | null; // short MP3 preview
+    external_urls: { spotify: string };
+    popularity: number; // 0–100
 }
 
-export interface AudiusTrack {
+export interface SpotifyPlaylist {
     id: string;
-    title: string;
-    duration: number;
-    genre: string;
-    mood?: string;
-    artwork: string | null;
-    stream_url: string;
-    user: AudiusUser;
-    release_date?: string;
-    play_count?: number;
-    repost_count?: number;
-    favorite_count?: number;
+    name: string;
+    description: string;
+    images: SpotifyImage[];
+    owner: SpotifyUser;
+    tracks: {
+        items: {
+            track: SpotifyTrack;
+        }[];
+        total: number;
+    };
+    external_urls: { spotify: string };
 }
-
-export interface AudiusPlaylist {
-    id: string;
-    title: string;
-    artwork: string | null;
-    user: AudiusUser;
-    track_count: number;
-    tracks: AudiusTrack[];
-    description?: string;
-} 
